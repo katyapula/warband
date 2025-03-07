@@ -1,0 +1,19 @@
+/my-next-app
+│── /src         ← ✅ Your actual app lives here
+│   │── /app     ← Next.js App Router (or `/pages` for Pages Router)
+│   │── /entities  ← Data models & core logic
+│   │── /features  ← Independent features (UI + logic)
+│   │── /widgets   ← Reusable UI compositions
+│   │── /shared    ← Common components, utilities, hooks
+│   │── /layouts   ← Page layouts
+│   │── /processes ← Complex business flows (auth, checkout)
+│   │── /styles    ← Global styles (SCSS/Tailwind)
+│   │── /config    ← App configurations & constants
+│   │── /api       ← Next.js API routes
+│── /public       ← Static assets (images, fonts)
+│── /node_modules ← 🚀 Dependencies (auto-generated)
+│── /.next        ← 🚀 Compiled Next.js build (auto-generated)
+│── .env          ← Environment variables
+│── next.config.js
+│── tsconfig.json
+│── package.json
