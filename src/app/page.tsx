@@ -1,6 +1,24 @@
 "use client";
-import Title from "antd/es/typography/Title";
+import { DatePicker, DatePickerProps } from "antd";
+import dayjs from "dayjs";
+import TabsComponent from "./components/home/Tabs";
 
 export default function Page() {
-  return <Title>Welcome dear player!</Title>;
+  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
+    console.log(date, dateString);
+  };
+
+  return (
+    <div>
+      <div style={{ margin: "10px 0" }}>
+        <TabsComponent />
+        <DatePicker
+          onChange={onChange}
+          minDate={dayjs()}
+          maxDate={dayjs().add(1, "month")}
+          defaultValue={dayjs()}
+        />
+      </div>
+    </div>
+  );
 }

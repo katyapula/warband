@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Layout } from "antd";
 import Image from "next/image";
 import Logo from "@assets/logo.jpg";
-import { Content, Footer, Header } from "antd/es/layout/layout";
+import { Content, Header } from "antd/es/layout/layout";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
