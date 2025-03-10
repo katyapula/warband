@@ -1,7 +1,8 @@
 "use client";
 import useSWR from "swr";
 import { FETCH_URL } from "../constants";
-import { fetcher } from "../../entities/fetcher";
+import { fetcher } from "@entities/fetcher";
+import type { User } from "@entities/types";
 
 export default function Page() {
   const { data, error, isLoading } = useSWR(`${FETCH_URL}users`, fetcher);
@@ -12,7 +13,7 @@ export default function Page() {
   return (
     <table>
       <tbody>
-        {data.map((user) => (
+        {data.map((user: User) => (
           <tr key={user.id}>
             <td>{user.name}</td>
           </tr>
