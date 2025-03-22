@@ -1,64 +1,61 @@
 "use client";
-import type { FormProps } from "antd";
-import { Button, Checkbox, Form, Input } from "antd";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
+import useSWRMutation from "swr/mutation";
 
-type FieldType = {
-  username?: string;
-  password?: string;
-  remember?: string;
-};
-
-const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-  console.log("Success:", values);
-};
-
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
+async function sendRequest(
+  url: string,
+  { arg }: { arg: { email: string; password: string } },
+) {
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { trigger, isMutating } = useSWRMutation(
+    "http://localhost:8080/create",
+    sendRequest /* options */,
+  );
+
   return (
-    <div style={{ margin: "10px auto", maxWidth: "400px" }}>
-      <Form
-        name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        autoComplete="off"
+    <div>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        onClick={async () => {
+          try {
+            const result = await trigger({
+              email: email,
+              password: password,
+            });
+            console.log(result);
+          } catch (e) {
+            return e;
+          }
+        }}
+        disabled={isMutating}
       >
-        <Form.Item<FieldType>
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item<FieldType>
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item<FieldType>
-          name="remember"
-          valuePropName="checked"
-          label={null}
-        >
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
-
-        <Form.Item label={null}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+        Submit
+      </button>
+      {/*<div>{error && error}</div>*/}
     </div>
   );
 }

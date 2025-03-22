@@ -1,17 +1,20 @@
 "use client";
 import { DatePicker, DatePickerProps } from "antd";
 import dayjs from "dayjs";
-import TabsComponent from "./components/home/Tabs";
+import TabsComponent from "./components/home/TabsComponent";
+import { useState } from "react";
+import { dayString } from "@entities/types";
 
 export default function Page() {
+  const [date, setDate] = useState<dayString>();
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
+    setDate(dateString);
   };
 
   return (
     <div>
       <div style={{ margin: "10px 0" }}>
-        <TabsComponent />
+        <TabsComponent date={date} />
         <DatePicker
           onChange={onChange}
           minDate={dayjs()}
