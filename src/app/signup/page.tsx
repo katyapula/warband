@@ -15,7 +15,7 @@ export default function SignupForm() {
   };
 
   return (
-    <Form onFinish={sendRequest} layout="vertical">
+    <Form component="div" layout="vertical">
       <Form.Item<SignupFieldType>
         label="Email"
         name="email"

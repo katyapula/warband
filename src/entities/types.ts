@@ -33,8 +33,8 @@ export type dayString = string | string[] | undefined;
 
 export type SignupFieldType = {
   name?: string;
-  email?: string;
+  email: string;
   telegram?: string;
   phone?: string;
-  password?: string;
+  password: string;
 };

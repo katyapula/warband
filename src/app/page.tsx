@@ -1,7 +1,7 @@
 "use client";
 import { DatePicker, DatePickerProps } from "antd";
 import dayjs from "dayjs";
-import TabsComponent from "./components/home/TabsComponent";
+import TabsComponent from "./components/table/TabsComponent";
 import { useState } from "react";
 import { dayString } from "@entities/types";
 

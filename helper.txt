@@ -17,3 +17,5 @@
 │── next.config.js
 │── tsconfig.json
 │── package.json
+
+zustand for store management
