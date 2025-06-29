@@ -6,7 +6,7 @@ import { useState } from "react";
 import { dayString } from "@entities/types";
 
 export default function Page() {
-  const [date, setDate] = useState<dayString>();
+  const [, setDate] = useState<dayString>();
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
     setDate(dateString);
   };
@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <div>
       <div style={{ margin: "10px 0" }}>
-        <TabsComponent date={date} />
+        <TabsComponent />
         <DatePicker
           onChange={onChange}
           minDate={dayjs()}
