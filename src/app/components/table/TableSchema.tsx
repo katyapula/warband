@@ -1,13 +1,13 @@
 "use client";
 
-import { dayString, Table } from "@entities/types";
-import { Dayjs } from "dayjs";
+import { Club, dayString } from "@entities/types";
 
 type TableSchemaProps = {
   date: dayString;
-  tables: Table[];
+  club: Club;
 };
 
-export default function TableSchema({ date, tables }: TableSchemaProps) {
+export default function TableSchema({ date, club }: TableSchemaProps) {
+  console.log(date, club, "111");
   return <div></div>;
 }

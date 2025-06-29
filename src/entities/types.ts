@@ -38,3 +38,10 @@ export type SignupFieldType = {
   phone?: string;
   password: string;
 };
+
+export type Club = {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+};

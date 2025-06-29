@@ -48,3 +48,5 @@ anybooking/compose.yaml
 
 # EsLint
 .eslintrc.json
+
+/src/generated/prisma
