@@ -1,7 +1,10 @@
 import { prisma } from "./prisma";
-import type { NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   const clubs = await prisma.club.findMany();
   res.status(200).json(clubs);
 }
