@@ -2,20 +2,16 @@
 import { Tabs } from "antd";
 import TableSchema from "./TableSchema";
 import useSWR from "swr";
-import { Club, dayString } from "@entities/types";
+import { Club } from "@entities/types";
 import { fetcher } from "@entities/fetcher";
 
-type TabsComponentProps = {
-  date: dayString;
-};
-
-export default function TabsComponent({ date }: TabsComponentProps) {
+export default function TabsComponent() {
   const { data: clubs } = useSWR("/api/clubs", fetcher);
 
   const clubsItems = clubs?.map((club: Club) => ({
     key: club.id,
     label: club.name,
-    children: <TableSchema date={date} club={club} />,
+    children: <TableSchema club={club} />,
   }));
 
   return <Tabs items={clubsItems} centered />;
