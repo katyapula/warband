@@ -1,27 +1,9 @@
-"use client";
-import { DatePicker, DatePickerProps } from "antd";
-import dayjs from "dayjs";
-import TabsComponent from "./components/table/TabsComponent";
-import { useState } from "react";
-import { dayString } from "@entities/types";
-
-export default function Page() {
-  const [, setDate] = useState<dayString>();
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    setDate(dateString);
-  };
-
+// Placeholder until slice 4 (availability grid, SCRUM-11).
+export default function HomePage() {
   return (
-    <div>
-      <div style={{ margin: "10px 0" }}>
-        <TabsComponent />
-        <DatePicker
-          onChange={onChange}
-          minDate={dayjs()}
-          maxDate={dayjs().add(1, "month")}
-          defaultValue={dayjs()}
-        />
-      </div>
-    </div>
+    <main>
+      <h1>Warband</h1>
+      <p>Table booking is coming soon.</p>
+    </main>
   );
 }
