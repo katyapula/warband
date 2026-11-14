@@ -15,7 +15,7 @@ admins approve bookings and manage tables, opening hours and club details.
 | ---------- | ------------------------------------- | ---------------------------------------------------------------------- |
 | Visitor    | Not signed in                         | See club info and table availability (booked/free only, no names)      |
 | Member     | Signed in with Google                 | Everything a visitor can + see who booked, create and cancel own bookings |
-| Admin      | Member whose email is in `ADMIN_EMAILS` | Everything a member can + approve/reject/cancel any booking, manage tables and club settings |
+| Admin      | Member whose email is in `ADMIN_EMAILS` | Everything a member can + approve/reject/edit/cancel any booking, create walk-in bookings, manage tables and club settings |
 
 ## Scope (v1)
 
@@ -23,7 +23,8 @@ admins approve bookings and manage tables, opening hours and club details.
 
 - One club. Its name, location, description, weekly opening hours and closed
   dates are stored in the database and edited by admins on a Settings page.
-- Opening hours are set per weekday (a weekday may be closed).
+- Opening hours are set per weekday (a weekday may be closed). Closing time
+  is midnight at the latest — no opening hours past midnight.
 - Admins can mark specific dates as closed (holidays, private events). No
   bookings can be made on closed dates.
 - Changing hours or adding a closed date does **not** cancel existing bookings.
@@ -67,6 +68,34 @@ PENDING ──approve──▶ APPROVED
 - Admin can approve or reject `PENDING`, and cancel any `PENDING`/`APPROVED`
   booking, with an optional reason.
 - `REJECTED` and `CANCELLED` bookings free the slot.
+- Two statuses are derived from time, not set by anyone
+  ([ADR 0001](./adr/0001-derived-completed-and-expired-statuses.md)):
+  - **Expired**: still pending when its start time arrives. Stops blocking.
+  - **Completed**: approved and its end time has passed. Shown to the
+    member and admins.
+- Members cannot edit bookings — to change one, they cancel and book again.
+
+### Admin editing
+
+- Admins can edit any pending or approved booking that hasn't started:
+  table, date, start/end time, whole day vs time range, note (and the
+  walk-in name/phone for walk-in bookings). The member of a booking can't
+  be changed.
+- Edits go through all booking rules except the booking window (admins may
+  move bookings further ahead). No overrides.
+- Status stays the same after an edit.
+- The member sees "Changed by admin" with an optional reason in My
+  bookings. No full change history in v1.
+- Completed, expired, rejected and cancelled bookings are read-only.
+
+### Walk-in bookings
+
+- Admins can book a table for a walk-in: a person without an account,
+  identified by a typed name, with an optional phone number.
+- Walk-in bookings are approved immediately, follow the same rules as admin
+  edits, and are not linked to any account.
+- Only admins can edit or cancel them; the phone number is visible to
+  admins only. Members see the walk-in name in the grid like any booker.
 
 ### Tables
 
@@ -95,7 +124,7 @@ PENDING ──approve──▶ APPROVED
 | Sign-in          | All     | Google sign-in                                             |
 | Book             | Member  | Form: table, date, whole day or time range, note           |
 | My bookings      | Member  | Upcoming and past bookings with status; cancel action      |
-| Admin: bookings  | Admin   | Pending queue; approve/reject; cancel with reason          |
+| Admin: bookings  | Admin   | Pending queue; approve/reject; edit; cancel with reason; create walk-in booking |
 | Admin: tables    | Admin   | Create/edit/deactivate tables                              |
 | Admin: settings  | Admin   | Club info, weekly opening hours, closed dates; affected-bookings list |
 
@@ -104,6 +133,10 @@ PENDING ──approve──▶ APPROVED
 - Multiple clubs.
 - Email/password sign-in.
 - Linking opponents to a booking / "looking for opponent".
+- Admin creating a booking on behalf of an existing member (v2).
+- Members editing bookings.
+- Booking change history.
+- Opening hours past midnight.
 - Notifications (email, Telegram — Telegram is a likely future addition).
 - Per-member booking limits.
 - Role-management UI.
