@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { requireAdmin } from "@/shared/lib/auth/session";
 
-// Placeholder admin home; real admin pages arrive in slices 1, 2 and 7.
+// Admin home; settings (slice 2) and bookings (slice 7) links arrive with their slices.
 export default async function AdminPage() {
   const admin = await requireAdmin();
 
@@ -8,6 +9,11 @@ export default async function AdminPage() {
     <main>
       <h1>Admin</h1>
       <p>Signed in as {admin.name} (admin).</p>
+      <ul>
+        <li>
+          <Link href="/admin/tables">Tables</Link>: add, edit and deactivate tables
+        </li>
+      </ul>
     </main>
   );
 }
