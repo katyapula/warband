@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Domain model: docs/DOMAIN.md. Terms: GLOSSARY.md.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,42 +6,81 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-model Club {
-  id          String  @id @default(uuid())
-  name        String
-  location    String
-  description String
-  tables      Table[]
+model ClubSettings {
+  id           Int            @id @default(1) // singleton row
+  name         String
+  location     String
+  description  String
+  updatedAt    DateTime       @updatedAt
+  openingHours OpeningHours[]
+}
+
+model OpeningHours {
+  id         String       @id @default(uuid())
+  settingsId Int
+  settings   ClubSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+  weekday    Int // 0 = Monday … 6 = Sunday
+  isClosed   Boolean      @default(false)
+  openTime   String? // "HH:mm", club timezone
+  closeTime  String? // "HH:mm" or "24:00", club timezone; never past midnight
+
+  @@unique([settingsId, weekday])
+}
+
+model ClosedDate {
+  id     String   @id @default(uuid())
+  date   DateTime @unique @db.Date
+  reason String?
 }
 
 model Table {
-  id       String    @id @default(uuid())
-  name     String
-  clubId   String
-  club     Club      @relation(fields: [clubId], references: [id])
-  bookings Booking[]
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean   @default(true)
+  bookings    Booking[]
 }
 
 model Booking {
-  id       String   @id @default(uuid())
-  userId   String
-  tableId  String
-  date     DateTime
-  approved Boolean  @default(false)
+  id           String        @id @default(uuid())
+  tableId      String
+  startsAt     DateTime // UTC
+  endsAt       DateTime // UTC
+  isWholeDay   Boolean       @default(false)
+  note         String?
+  status       BookingStatus @default(PENDING)
+  statusReason String? // reason for reject/cancel
 
-  user  User  @relation(fields: [userId], references: [id])
+  // Exactly one of: member booking (userId) or walk-in booking (walkInName).
+  // Enforced by a CHECK constraint in the init migration.
+  userId      String?
+  walkInName  String?
+  walkInPhone String? // visible to admins only
+
+  // Last admin edit (no full history in v1)
+  editedByAdminAt DateTime?
+  editReason      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User? @relation(fields: [userId], references: [id])
   table Table @relation(fields: [tableId], references: [id])
+
+  @@index([tableId, startsAt])
+  @@index([userId])
 }
 
 model User {
   id       String    @id @default(uuid())
   email    String    @unique
   name     String
-  password String?
+  image    String?
   role     Role      @default(USER)
   bookings Booking[]
 }
@@ -53,4 +88,12 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+// Completed and Expired are derived from time, not stored: docs/adr/0001
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
