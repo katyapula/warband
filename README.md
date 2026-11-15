@@ -13,9 +13,13 @@ tables; admins approve bookings and run the club's schedule.
 ```bash
 cp .env.example .env.local   # fill in values; DATABASE_URL must point at the Neon dev branch
 npm install                  # also generates the Prisma client
-npm run db:migrate           # apply migrations
+npm run db:migrate           # apply migrations (reads .env.local)
 npm run dev
 ```
+
+Keep all local values in `.env.local`. Next.js lets `.env.development.local` override
+it, and the Prisma CLI on its own reads only `.env`, so stray copies of those files
+(e.g. from `vercel env pull`) can silently point you at another database.
 
 ## Scripts
 

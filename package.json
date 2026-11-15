@@ -11,8 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run lint && npm run typecheck && npm run test",
-    "db:migrate": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate": "dotenv -e .env.local -- prisma migrate deploy",
+    "db:migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
     "prisma": "^6.19.3",
