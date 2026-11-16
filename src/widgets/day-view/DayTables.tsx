@@ -1,7 +1,6 @@
 "use client";
 
-import { Button, Card, Empty, Flex, Tag, Typography } from "antd";
-import Link from "next/link";
+import { Button, Card, Flex, Typography } from "antd";
 import { useState } from "react";
 import type { Gap, SlotRules } from "@/entities/booking/gaps";
 import type { ShownStatus } from "@/entities/booking/status";
@@ -12,6 +11,11 @@ import { AdminBookingModal, type AdminBookingTarget } from "@/features/booking-f
 import { BookingModal } from "@/features/booking-form/BookingModal";
 import { CancelBookingButton } from "@/features/cancel-booking/CancelBookingButton";
 import { AdminBookingActions } from "@/features/review-booking/AdminBookingActions";
+import { BrandTag } from "@/shared/ui/BrandTag";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { brand } from "@/shared/ui/theme";
+import { segmentFill, segmentLabel, TableTimeline } from "./TableTimeline";
+import { segmentKind, type Hours, type SegmentKind } from "./timeline";
 
 /** A booking row, already shaped for the viewer (entities/booking/dayView). */
 export type DayTableBooking = {
@@ -70,8 +74,11 @@ export function DayTables({
   add,
   admin = null,
   members = {},
+  hours = null,
 }: {
   tables: DayTable[];
+  /** The day's open hours; null on an inactive day (no timeline then). */
+  hours?: Hours | null;
   isAdmin: boolean;
   add: AddContext;
   admin?: AdminContext;
@@ -84,22 +91,22 @@ export function DayTables({
 
   if (tables.length === 0) {
     return (
-      <Empty
-        description={
-          isAdmin ? (
-            <>
-              No tables yet. Add them in <Link href="/admin/tables">Admin → Tables</Link>.
-            </>
-          ) : (
-            "No tables yet."
-          )
-        }
-      />
+      <EmptyState
+        title="No tables yet"
+        action={isAdmin ? { href: "/admin/tables", label: "Add tables" } : undefined}
+      >
+        {isAdmin ? "Add the club's tables so members can book them." : undefined}
+      </EmptyState>
     );
   }
 
+  const kinds = new Set<SegmentKind>(
+    hours ? tables.flatMap((t) => t.bookings.map((b) => segmentKind(b.status))) : [],
+  );
+
   return (
     <Flex vertical gap={12}>
+      {kinds.size > 1 && <TimelineLegend kinds={kinds} />}
       {tables.map((t) => (
         <Card
           key={t.id}
@@ -126,6 +133,7 @@ export function DayTables({
             </Flex>
           }
         >
+          {hours && <TableTimeline hours={hours} bookings={t.bookings} />}
           {t.bookings.length === 0 ? (
             <Typography.Text type="secondary">No bookings yet.</Typography.Text>
           ) : (
@@ -135,7 +143,7 @@ export function DayTables({
                   key={b.id}
                   style={{
                     padding: "6px 0",
-                    borderTop: i ? "1px solid rgba(0,0,0,0.06)" : undefined,
+                    borderTop: i ? `1px solid ${brand.line}` : undefined,
                   }}
                 >
                   <Flex gap={8} align="center" wrap>
@@ -155,13 +163,13 @@ export function DayTables({
                     ) : (
                       <span>{b.label}</span>
                     )}
-                    {isAdmin && b.isWalkIn && <Tag>Walk-in</Tag>}
-                    {b.isOwn && !isAdmin && <Tag color="purple">You</Tag>}
+                    {isAdmin && b.isWalkIn && <BrandTag tone="muted">Walk-in</BrandTag>}
+                    {b.isOwn && !isAdmin && <BrandTag tone="text">You</BrandTag>}
                     {b.status && <StatusTag status={b.status} />}
                     {b.onInactiveDay && (
-                      <Tag color="orange" title="The day was deactivated after this booking was made.">
+                      <BrandTag tone="brass" title="The day was deactivated after this booking was made.">
                         ⚠ On inactive day
-                      </Tag>
+                      </BrandTag>
                     )}
                     {admin && (
                       <AdminBookingActions
@@ -230,6 +238,21 @@ export function DayTables({
           rules={add.rules}
         />
       )}
+    </Flex>
+  );
+}
+
+const LEGEND_ORDER: SegmentKind[] = ["approved", "pending", "taken"];
+
+function TimelineLegend({ kinds }: { kinds: Set<SegmentKind> }) {
+  return (
+    <Flex gap={16} wrap style={{ fontSize: 13 }} aria-hidden>
+      {LEGEND_ORDER.filter((k) => kinds.has(k)).map((k) => (
+        <Flex key={k} gap={6} align="center">
+          <span style={{ width: 16, height: 10, borderRadius: 3, background: segmentFill[k] }} />
+          {segmentLabel[k]}
+        </Flex>
+      ))}
     </Flex>
   );
 }

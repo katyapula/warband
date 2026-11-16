@@ -2,6 +2,7 @@
 
 import { Descriptions, Modal, Tag, Typography } from "antd";
 import Link from "next/link";
+import { BrandTag } from "@/shared/ui/BrandTag";
 
 /** What an admin sees of a member. Dates are ISO strings (serialisable). */
 export type MemberCard = {
@@ -29,7 +30,7 @@ export function MemberCardModal({ member, onClose }: { member: MemberCard | null
         member && (
           <span>
             {member.username}{" "}
-            {member.role === "ADMIN" ? <Tag color="red">Admin</Tag> : <Tag>Member</Tag>}
+            {member.role === "ADMIN" ? <BrandTag tone="accent">Admin</BrandTag> : <Tag>Member</Tag>}
           </span>
         )
       }
