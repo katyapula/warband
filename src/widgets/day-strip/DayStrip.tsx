@@ -1,0 +1,160 @@
+import Link from "next/link";
+import type { CSSProperties } from "react";
+import { formatDate } from "@/shared/lib/time";
+
+const ACCENT = "#8b1e1e"; // AppShell colorPrimary
+
+const dayHref = (date: string) => `/?date=${date}`;
+
+const parts = (date: string) => ({
+  weekday: formatDate(date, { weekday: "short" }),
+  day: formatDate(date, { day: "numeric" }),
+  full: formatDate(date, { weekday: "long", day: "numeric", month: "long" }),
+});
+
+const arrow: CSSProperties = {
+  flex: "0 0 32px",
+  display: "grid",
+  placeItems: "center",
+  fontSize: 22,
+  lineHeight: 1,
+  textDecoration: "none",
+  color: "inherit",
+  borderRadius: 6,
+};
+
+const todayButton: CSSProperties = {
+  justifySelf: "start",
+  padding: "2px 10px",
+  fontSize: 13,
+  border: `1px solid ${ACCENT}`,
+  borderRadius: 6,
+  color: ACCENT,
+  textDecoration: "none",
+};
+
+/**
+ * One week (Mon–Sun) of dates with ‹ › arrows. Dates outside the viewable
+ * range are shown but not linked. A dot under a date = active day.
+ */
+export function DayStrip({
+  week,
+  selected,
+  today,
+  isViewable,
+  activeDates,
+  prev,
+  next,
+}: {
+  week: string[];
+  selected: string;
+  today: string;
+  isViewable: (date: string) => boolean;
+  activeDates: Set<string>;
+  prev: string | null;
+  next: string | null;
+}) {
+  const month = formatDate(selected, { month: "long", year: "numeric" });
+
+  return (
+    <nav aria-label="Days" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
+        {selected === today ? (
+          <span aria-disabled style={{ ...todayButton, opacity: 0.35 }}>
+            Today
+          </span>
+        ) : (
+          <Link href={dayHref(today)} style={todayButton}>
+            Today
+          </Link>
+        )}
+        <span style={{ fontSize: 13, opacity: 0.65 }}>{month}</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "stretch", gap: 4 }}>
+        {prev ? (
+          <Link href={dayHref(prev)} aria-label="Previous week" style={arrow}>
+            ‹
+          </Link>
+        ) : (
+          <span aria-hidden style={{ ...arrow, opacity: 0.2 }}>
+            ‹
+          </span>
+        )}
+        <ol
+          style={{
+            display: "flex",
+            flex: 1,
+            gap: 4,
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            minWidth: 0,
+          }}
+        >
+          {week.map((date) => {
+            const p = parts(date);
+            const isSelected = date === selected;
+            const isActive = activeDates.has(date);
+            const viewable = isViewable(date);
+            const cell: CSSProperties = {
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+              padding: "6px 0",
+              borderRadius: 8,
+              textDecoration: "none",
+              color: isSelected ? "#fff" : "inherit",
+              background: isSelected ? ACCENT : "transparent",
+              border: `1px solid ${date === today && !isSelected ? ACCENT : "transparent"}`,
+              opacity: viewable ? 1 : 0.35,
+            };
+            const content = (
+              <>
+                <span style={{ fontSize: 12 }}>{p.weekday}</span>
+                <span style={{ fontSize: 18, fontWeight: 600 }}>{p.day}</span>
+                <span
+                  aria-hidden
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: isActive ? (isSelected ? "#fff" : ACCENT) : "transparent",
+                  }}
+                />
+              </>
+            );
+            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}`;
+            return (
+              <li key={date} style={{ flex: 1, minWidth: 0 }}>
+                {viewable ? (
+                  <Link
+                    href={dayHref(date)}
+                    aria-label={label}
+                    aria-current={isSelected ? "date" : undefined}
+                    style={cell}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <span aria-label={label} style={cell}>
+                    {content}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+        {next ? (
+          <Link href={dayHref(next)} aria-label="Next week" style={arrow}>
+            ›
+          </Link>
+        ) : (
+          <span aria-hidden style={{ ...arrow, opacity: 0.2 }}>
+            ›
+          </span>
+        )}
+      </div>
+    </nav>
+  );
+}

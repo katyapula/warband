@@ -8,13 +8,15 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** none in progress; slice 4 merged into `v1` (#8).
-- **Branch:** next slice branches from `v1`.
+- **Current slice:** 5 (day view & club days), branch `slice-5-day-view-club-days`.
+- **Branch:** `slice-5-day-view-club-days` (uncommitted work, not yet pushed).
 - **State:** slices 0–4 done. Members have profiles (`/profile`), admins
   manage members and roles (`/admin/members`); member and role are read
   from the DB per request.
-- **Next step:** start slice 5 (day view & club days). `/admin/settings`
-  on the `v1` preview is still unchecked (slice 2).
+- **Next step:** check the admin side of slice 5 in a browser (Activate /
+  Edit hours / Deactivate on the day view), commit, open the PR
+  `Slice 5: day view & club days`. `/admin/settings` on the `v1` preview is
+  still unchecked (slice 2).
 
 ## Slices
 
@@ -27,7 +29,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 2  | Admin settings & about      | Done        |
 | 3  | Booking rules               | Done        |
 | 4  | Profiles & members          | Done        |
-| 5  | Day view & club days        | To do       |
+| 5  | Day view & club days        | In progress |
 | 6  | Member booking              | To do       |
 | 7  | My bookings                 | To do       |
 | 8  | Admin review                | To do       |
@@ -36,12 +38,12 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 
 ## Loose ends
 
-- **Blocking in queries (slice 6):** `isBlocking` is an in-memory
-  predicate. Slice 6 needs the same rule as a Prisma `where`
-  (`APPROVED`, or `PENDING` with `startsAt > now`); keep it next to
-  `status.ts` (ADR 0001: one helper, not scattered clauses).
-- **`validateWorkingHours`** in `entities/club/model.ts` is meant to be
-  reused by slice 5 (activate / edit hours of a day).
+- **Blocking in queries:** `blockingWhere(now)` in
+  `entities/booking/repository.ts` is the Prisma twin of `isBlocking`;
+  slice 6's overlap check should use it, not a new clause.
+- **Slice 5 left for later slices:** inactive days with bookings shown to
+  admins and members' own bookings on inactive days (slice 10); the
+  Edit-hours confirmation listing bookings outside new hours (slice 10).
 - **Docs trimmed 2026-11-16:** member edit, Clear, archive page, accounts
   created in advance, whole-day storage, the hours flag, `Booking.date` and
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.
