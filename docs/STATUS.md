@@ -10,11 +10,12 @@ _Last updated: 2026-11-16_
 
 - **Current slice:** 2 — Admin settings & about (in progress)
 - **Branch:** `scrum-9-admin-settings` (from `v1`)
-- **State:** in-progress code builds the *old* model (weekly opening hours,
-  closed dates). Specs were re-cut on 2026-11-16 — rework to the new model
-  before continuing (see Loose ends).
-- **Next step:** rework slice 2 per its row in `PLAN.md` (the doc re-cut
-  and trim are already on `v1`; merge `v1` into the slice branch first).
+- **State:** reworked to the club-day model: migration
+  `20261116000000_club_days` (applied on Neon `dev`), club info + default
+  working hours form, `/about`, About link in the header. `npm run check`
+  passes. Not yet committed; `/admin/settings` not yet tried signed in.
+- **Next step:** try `/admin/settings` as an admin on a Vercel preview,
+  then open the PR `Slice 2: Admin settings & about` into `v1`.
 
 ## Slices
 
@@ -36,11 +37,8 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 
 ## Loose ends
 
-- **Init migration is already applied** (merged in slice 0 with
-  `OpeningHours`/`ClosedDate`). Remove them with a *new* migration in
-  slice 2; never edit `20261114000000_init`.
-- **Slice 2 code to remove:** `src/features/manage-club-settings/OpeningHoursForm.tsx`,
-  `ClosedDatesManager.tsx`, and their parts in `src/entities/club/`.
+- **`validateWorkingHours`** in `entities/club/model.ts` is meant to be
+  reused by slice 5 (activate / edit hours of a day).
 - **Docs trimmed 2026-11-16:** member edit, Clear, archive page, accounts
   created in advance, whole-day storage, the hours flag, `Booking.date` and
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.

@@ -21,6 +21,7 @@ export async function Header() {
         <Link href="/" aria-label="Warband home">
           <Image src="/logo.jpg" width={56} height={56} alt="Warband" priority />
         </Link>
+        <Link href="/about">About</Link>
         {isAdmin(member?.role) && <Link href="/admin">Admin</Link>}
       </nav>
       <AuthButton member={member ? { name: member.name, image: member.image } : null} />

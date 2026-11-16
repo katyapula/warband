@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/shared/lib/auth/session";
 
-// Admin home; settings (slice 2) and bookings (slice 7) links arrive with their slices.
+// Admin home; members (slice 4) and day-view admin actions arrive with their slices.
 export default async function AdminPage() {
   const admin = await requireAdmin();
 
@@ -12,6 +12,9 @@ export default async function AdminPage() {
       <ul>
         <li>
           <Link href="/admin/tables">Tables</Link>: add, edit and deactivate tables
+        </li>
+        <li>
+          <Link href="/admin/settings">Settings</Link>: club details and default working hours
         </li>
       </ul>
     </main>
