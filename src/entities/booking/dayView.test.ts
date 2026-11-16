@@ -15,6 +15,7 @@ const row = (over: Partial<DayBookingRow>): DayBookingRow => ({
   username: "orkboy",
   walkInName: null,
   walkInContact: null,
+  adminComment: null,
   ...over,
 });
 
@@ -49,5 +50,23 @@ describe("shapeDayBookings", () => {
     const w = out.find((b) => b.id === "walkin")!;
     expect([w.label, w.isWalkIn, w.walkInContact, w.status]).toEqual(["Bob", true, "+380…", "APPROVED"]);
     expect(out.find((b) => b.id === "expired")!.status).toBe("EXPIRED");
+  });
+
+  it("shows the admin comment to the booker and admins only", () => {
+    const commented = [row({ id: "c", userId: "me", adminComment: "Bring dice" }), row({ id: "o", adminComment: "Moved" })];
+    const asMember = shapeDayBookings(commented, { id: "me", isAdmin: false }, now);
+    expect(asMember.map((b) => b.adminComment)).toEqual(["Bring dice", null]);
+    expect(shapeDayBookings(commented, null, now).every((b) => b.adminComment === null)).toBe(true);
+    expect(shapeDayBookings(commented, { id: "a", isAdmin: true }, now).map((b) => b.adminComment)).toEqual([
+      "Bring dice",
+      "Moved",
+    ]);
+  });
+
+  it("lets members cancel only their own bookings that haven't started", () => {
+    const started = row({ id: "started", userId: "me", startsAt: new Date("2026-11-18T09:00:00Z") });
+    const out = shapeDayBookings([...all, started], { id: "me", isAdmin: false }, now);
+    expect(out.filter((b) => b.canCancel).map((b) => b.id)).toEqual(["own"]);
+    expect(shapeDayBookings(all, null, now).some((b) => b.canCancel)).toBe(false);
   });
 });

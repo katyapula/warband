@@ -35,7 +35,8 @@ const todayButton: CSSProperties = {
 
 /**
  * One week (Mon–Sun) of dates with ‹ › arrows. Dates outside the viewable
- * range are shown but not linked. A dot under a date = active day.
+ * range are shown but not linked. Marks under a date: a dot = active day,
+ * a ring = the member has a booking that day.
  */
 export function DayStrip({
   week,
@@ -43,6 +44,7 @@ export function DayStrip({
   today,
   isViewable,
   activeDates,
+  ownDates,
   prev,
   next,
 }: {
@@ -51,6 +53,8 @@ export function DayStrip({
   today: string;
   isViewable: (date: string) => boolean;
   activeDates: Set<string>;
+  /** Days with the member's own blocking bookings (members only). */
+  ownDates: Set<string>;
   prev: string | null;
   next: string | null;
 }) {
@@ -95,6 +99,8 @@ export function DayStrip({
             const p = parts(date);
             const isSelected = date === selected;
             const isActive = activeDates.has(date);
+            const hasOwn = ownDates.has(date);
+            const markColor = isSelected ? "#fff" : ACCENT;
             const viewable = isViewable(date);
             const cell: CSSProperties = {
               display: "flex",
@@ -113,18 +119,30 @@ export function DayStrip({
               <>
                 <span style={{ fontSize: 12 }}>{p.weekday}</span>
                 <span style={{ fontSize: 18, fontWeight: 600 }}>{p.day}</span>
-                <span
-                  aria-hidden
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: isActive ? (isSelected ? "#fff" : ACCENT) : "transparent",
-                  }}
-                />
+                <span aria-hidden style={{ display: "flex", gap: 3, height: 6 }}>
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: isActive ? markColor : "transparent",
+                    }}
+                  />
+                  {hasOwn && (
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        boxSizing: "border-box",
+                        borderRadius: "50%",
+                        border: `1.5px solid ${markColor}`,
+                      }}
+                    />
+                  )}
+                </span>
               </>
             );
-            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}`;
+            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}`;
             return (
               <li key={date} style={{ flex: 1, minWidth: 0 }}>
                 {viewable ? (
