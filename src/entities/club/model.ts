@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fromMinutes, toMinutes } from "@/shared/lib/time";
 
 export const CLUB_NAME_MAX = 80;
 export const CLUB_LOCATION_MAX = 200;
@@ -52,21 +53,6 @@ export function parseClubInfo(
 
 /** A day's working hours. "HH:mm" in the club time zone; closing may be "24:00" (midnight). */
 export type WorkingHours = { openTime: string; closeTime: string };
-
-const TIME = /^([01]\d|2[0-3]):[0-5]\d$|^24:00$/;
-
-/** "HH:mm" → minutes since midnight; null if malformed. "24:00" → 1440. */
-export function toMinutes(time: string): number | null {
-  if (!TIME.test(time)) return null;
-  return Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
-}
-
-/** Minutes since midnight → "HH:mm" (1440 → "24:00"). */
-export function fromMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
 
 /** Times an admin can pick: opening 00:00 … last step, closing first step … 24:00. */
 export function timeChoices(slotStepMinutes: number): { open: string[]; close: string[] } {

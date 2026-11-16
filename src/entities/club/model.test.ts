@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseClubInfo, timeChoices, toMinutes, validateWorkingHours } from "./model";
+import { parseClubInfo, timeChoices, validateWorkingHours } from "./model";
 
 const rules = { slotStepMinutes: 30, minBookingMinutes: 60 };
 
@@ -44,13 +44,7 @@ describe("validateWorkingHours", () => {
   });
 });
 
-describe("time-of-day helpers", () => {
-  it("reads HH:mm and midnight", () => {
-    expect(toMinutes("09:30")).toBe(570);
-    expect(toMinutes("24:00")).toBe(1440);
-    expect(toMinutes("24:30")).toBeNull();
-  });
-
+describe("timeChoices", () => {
   it("offers opening up to the last step and closing up to midnight", () => {
     const { open, close } = timeChoices(30);
     expect(open[0]).toBe("00:00");
