@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { TABLE_DESCRIPTION_MAX, TABLE_NAME_MAX, type TableInput } from "@/entities/table/model";
 import type { TableRow } from "@/entities/table/repository";
+import { applyFieldErrors, clearErrorsOnChange } from "@/shared/ui/fieldErrors";
 import {
   createTableAction,
   setTableActiveAction,
@@ -26,12 +27,7 @@ export function TablesManager({ tables }: { tables: TableRow[] }) {
   const openEdit = (table: TableRow) => setEditing({ mode: "edit", table });
 
   function showErrors(result: Extract<TableActionResult, { ok: false }>) {
-    const fields = Object.entries(result.fieldErrors ?? {}).map(([name, error]) => ({
-      name: name as keyof TableInput,
-      errors: [error],
-    }));
-    if (fields.length) form.setFields(fields);
-    else message.error(result.error);
+    if (!applyFieldErrors(form, result.fieldErrors)) message.error(result.error);
   }
 
   async function submit() {
@@ -136,6 +132,7 @@ export function TablesManager({ tables }: { tables: TableRow[] }) {
       >
         <Form
           form={form}
+          onValuesChange={clearErrorsOnChange(form)}
           layout="vertical"
           preserve={false}
           initialValues={

@@ -2,12 +2,12 @@ import { getClubSettings } from "@/entities/club/repository";
 import { ClubInfoForm } from "@/features/manage-club-settings/ClubInfoForm";
 import { DefaultHoursForm } from "@/features/manage-club-settings/DefaultHoursForm";
 import { getConfig } from "@/shared/config";
-import { requireAdmin } from "@/shared/lib/auth/session";
+import { requireAdminPage } from "@/shared/lib/auth/session";
 
 export const metadata = { title: "Settings · Warband admin" };
 
 export default async function AdminSettingsPage() {
-  await requireAdmin();
+  await requireAdminPage("/admin/settings");
   const { info, defaultHours } = await getClubSettings();
 
   return (

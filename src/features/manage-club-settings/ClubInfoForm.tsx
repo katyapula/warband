@@ -9,6 +9,7 @@ import {
   CLUB_NAME_MAX,
   type ClubInfo,
 } from "@/entities/club/model";
+import { applyFieldErrors, clearErrorsOnChange } from "@/shared/ui/fieldErrors";
 import { updateClubInfoAction } from "./actions";
 
 export function ClubInfoForm({ info }: { info: ClubInfo }) {
@@ -21,12 +22,7 @@ export function ClubInfoForm({ info }: { info: ClubInfo }) {
     startSaving(async () => {
       const result = await updateClubInfoAction(values);
       if (!result.ok) {
-        const fields = Object.entries(result.fieldErrors ?? {}).map(([name, error]) => ({
-          name: name as keyof ClubInfo,
-          errors: [error],
-        }));
-        if (fields.length) form.setFields(fields);
-        else message.error(result.error);
+        if (!applyFieldErrors(form, result.fieldErrors)) message.error(result.error);
         return;
       }
       message.success("Club details saved.");
@@ -36,7 +32,13 @@ export function ClubInfoForm({ info }: { info: ClubInfo }) {
 
   return (
     <Card title="Club details">
-      <Form form={form} layout="vertical" initialValues={info} onFinish={submit}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={info}
+        onValuesChange={clearErrorsOnChange(form)}
+        onFinish={submit}
+      >
         <Form.Item
           name="name"
           label="Name"

@@ -24,7 +24,7 @@ export async function Header() {
         <Link href="/about">About</Link>
         {isAdmin(member?.role) && <Link href="/admin">Admin</Link>}
       </nav>
-      <AuthButton member={member ? { name: member.name, image: member.image } : null} />
+      <AuthButton member={member ? { username: member.username, image: member.image } : null} />
     </div>
   );
 }
