@@ -1,13 +1,15 @@
 "use client";
 
-import { App, Button, Flex, Popconfirm, Typography } from "antd";
+import { App, Button, Flex, Modal, Popconfirm, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { WorkingHours } from "@/entities/club/model";
 import { HoursPicker } from "@/entities/club/ui/HoursPicker";
+import type { HoursConflict } from "@/entities/booking/repository";
 import {
   activateDayAction,
   deactivateDayAction,
+  hoursConflictsAction,
   updateDayHoursAction,
   type ClubDayResult,
 } from "./actions";
@@ -34,6 +36,19 @@ export function ClubDayControls({
   const [draft, setDraft] = useState(hours);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  /** Bookings the new hours would leave outside; non-null while confirming. */
+  const [conflicts, setConflicts] = useState<HoursConflict[] | null>(null);
+
+  /** Save hours: if bookings would fall outside the new hours, confirm first. */
+  function saveHours() {
+    setError(null);
+    startTransition(async () => {
+      const check = await hoursConflictsAction({ date, ...draft });
+      if (!check.ok) return setError(check.error);
+      if (check.conflicts.length) return setConflicts(check.conflicts);
+      run(() => updateDayHoursAction({ date, ...draft }), "Hours saved.");
+    });
+  }
 
   function run(action: () => Promise<ClubDayResult>, done: string) {
     setError(null);
@@ -92,7 +107,7 @@ export function ClubDayControls({
           <Button
             type="primary"
             loading={pending}
-            onClick={() => run(() => updateDayHoursAction({ date, ...draft }), "Hours saved.")}
+            onClick={saveHours}
           >
             Save hours
           </Button>
@@ -108,6 +123,28 @@ export function ClubDayControls({
           </Button>
         </Flex>
         {errorLine}
+        <Modal
+          open={conflicts !== null}
+          title="Some bookings fall outside the new hours"
+          okText="Save hours anyway"
+          onOk={() => {
+            setConflicts(null);
+            run(() => updateDayHoursAction({ date, ...draft }), "Hours saved.");
+          }}
+          onCancel={() => setConflicts(null)}
+        >
+          <Typography.Paragraph>
+            New hours {draft.openTime}–{draft.closeTime}. These bookings stay as they are; edit or cancel them
+            afterwards if needed:
+          </Typography.Paragraph>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            {conflicts?.map((c) => (
+              <li key={c.id}>
+                <span style={{ fontVariantNumeric: "tabular-nums" }}>{c.time}</span> · {c.tableName} · {c.booker}
+              </li>
+            ))}
+          </ul>
+        </Modal>
       </Flex>
     );
   }

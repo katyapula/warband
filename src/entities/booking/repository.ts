@@ -2,10 +2,11 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/shared/lib/prisma";
 import { clubDayKey, listClubDays } from "@/entities/club/repository";
-import { dateInZone, isIsoDate, utcRangeOfDate } from "@/shared/lib/time";
+import { dateInZone, isIsoDate, timeRangeInZone, utcRangeOfDate } from "@/shared/lib/time";
 import { shapeDayBookings, type DayBooking, type Viewer } from "./dayView";
 import { shapeMyBookings, type MyBooking } from "./myBookings";
 import { attentionSummary, pendingCountsByDate } from "./attention";
+import { outsideHours } from "./conflicts";
 import type { WriteErrorCode } from "./messages";
 import { freeGaps, type Gap } from "./gaps";
 import { checkBooking, checkEdit, type BookingConfig, type BookingRequest } from "./rules";
@@ -40,6 +41,8 @@ export async function listDayBookings(p: {
   viewer: Viewer;
   now: Date;
   timeZone: string;
+  /** The date's ClubDay, for the On inactive day flag (null = none). */
+  day: DayState;
 }): Promise<DayBooking[]> {
   const { start, end } = utcRangeOfDate(p.date, p.timeZone);
   const rows = await prisma.booking.findMany({
@@ -66,6 +69,7 @@ export async function listDayBookings(p: {
     rows.map(({ user, ...b }) => ({ ...b, username: user?.username ?? null })),
     p.viewer,
     p.now,
+    p.day,
   );
 }
 
@@ -377,4 +381,53 @@ export async function listMyBookings(p: {
     p.now,
     p.timeZone,
   );
+}
+
+/** Blocking bookings starting from `first` to `last` (club-local dates). */
+export function listBlockingInRange(p: {
+  first: string;
+  last: string;
+  now: Date;
+  timeZone: string;
+}): Promise<TimedBooking[]> {
+  return prisma.booking.findMany({
+    where: {
+      startsAt: {
+        gte: utcRangeOfDate(p.first, p.timeZone).start,
+        lt: utcRangeOfDate(p.last, p.timeZone).end,
+      },
+      ...blockingWhere(p.now),
+    },
+    select: { status: true, startsAt: true, endsAt: true },
+  });
+}
+
+export type HoursConflict = { id: string; tableName: string; time: string; booker: string };
+
+/** Blocking bookings on a date that new working hours would leave outside (Edit hours confirmation). */
+export async function listHoursConflicts(p: {
+  date: string;
+  hours: { openTime: string; closeTime: string };
+  now: Date;
+  timeZone: string;
+}): Promise<HoursConflict[]> {
+  const { start, end } = utcRangeOfDate(p.date, p.timeZone);
+  const rows = await prisma.booking.findMany({
+    where: { startsAt: { gte: start, lt: end }, ...blockingWhere(p.now) },
+    select: {
+      id: true,
+      status: true,
+      startsAt: true,
+      endsAt: true,
+      walkInName: true,
+      table: { select: { name: true } },
+      user: { select: { username: true } },
+    },
+  });
+  return outsideHours(rows, p.date, p.hours, p.now, p.timeZone).map((b) => ({
+    id: b.id,
+    tableName: b.table.name,
+    time: timeRangeInZone(b.startsAt, b.endsAt, p.timeZone),
+    booker: b.user?.username ?? b.walkInName ?? "Walk-in",
+  }));
 }

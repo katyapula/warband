@@ -91,4 +91,14 @@ describe("shapeDayBookings", () => {
     expect(out.filter((b) => b.canCancel).map((b) => b.id)).toEqual(["own"]);
     expect(shapeDayBookings(all, null, now).some((b) => b.canCancel)).toBe(false);
   });
+
+  it("flags blocking bookings on an inactive day for admins and the booker", () => {
+    const inactive = { isActive: false };
+    const asAdmin = shapeDayBookings(all, { id: "admin", isAdmin: true }, now, inactive);
+    expect(asAdmin.filter((b) => b.onInactiveDay).map((b) => b.id)).toEqual(["own", "member", "walkin"]);
+    const asMember = shapeDayBookings(all, { id: "me", isAdmin: false }, now, inactive);
+    expect(asMember.filter((b) => b.onInactiveDay).map((b) => b.id)).toEqual(["own"]);
+    expect(shapeDayBookings(all, null, now, null).some((b) => b.onInactiveDay)).toBe(false);
+    expect(shapeDayBookings(all, { id: "admin", isAdmin: true }, now, { isActive: true }).some((b) => b.onInactiveDay)).toBe(false);
+  });
 });

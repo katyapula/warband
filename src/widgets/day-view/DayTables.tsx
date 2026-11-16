@@ -31,6 +31,8 @@ export type DayTableBooking = {
   canCancel: boolean;
   canApprove: boolean;
   canEdit: boolean;
+  /** Blocking on a day that isn't active (admins and the booker see ⚠). */
+  onInactiveDay: boolean;
 };
 
 export type DayTable = {
@@ -156,6 +158,11 @@ export function DayTables({
                     {isAdmin && b.isWalkIn && <Tag>Walk-in</Tag>}
                     {b.isOwn && !isAdmin && <Tag color="purple">You</Tag>}
                     {b.status && <StatusTag status={b.status} />}
+                    {b.onInactiveDay && (
+                      <Tag color="orange" title="The day was deactivated after this booking was made.">
+                        ⚠ On inactive day
+                      </Tag>
+                    )}
                     {admin && (
                       <AdminBookingActions
                         booking={b}

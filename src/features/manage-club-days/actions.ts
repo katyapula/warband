@@ -8,6 +8,7 @@ import {
   deactivateClubDay,
   updateClubDayHours,
 } from "@/entities/club/repository";
+import { listHoursConflicts, type HoursConflict } from "@/entities/booking/repository";
 import { getConfig } from "@/shared/config";
 import { AuthError, requireAdmin } from "@/shared/lib/auth/session";
 import { dateInZone } from "@/shared/lib/time";
@@ -48,8 +49,28 @@ export async function activateDayAction(input: DayInput): Promise<ClubDayResult>
   if (!h.ok) return h;
 
   await activateClubDay(day.date, h.data);
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
+}
+
+/**
+ * The day's blocking bookings that new hours would leave outside, for the
+ * Edit hours confirmation. Changes nothing.
+ */
+export async function hoursConflictsAction(
+  input: DayInput,
+): Promise<{ ok: true; conflicts: HoursConflict[] } | { ok: false; error: string }> {
+  const day = await guard(input?.date);
+  if (!day.ok) return day;
+  const h = hours(input);
+  if (!h.ok) return h;
+  const conflicts = await listHoursConflicts({
+    date: day.date,
+    hours: h.data,
+    now: new Date(),
+    timeZone: getConfig().clubTimeZone,
+  });
+  return { ok: true, conflicts };
 }
 
 /** Changes an active day's hours. Bookings are never changed (docs/adr/0002). */
@@ -61,7 +82,7 @@ export async function updateDayHoursAction(input: DayInput): Promise<ClubDayResu
 
   if (!(await updateClubDayHours(day.date, h.data)))
     return { ok: false, error: "This day isn't active any more. Reload the page." };
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -72,6 +93,6 @@ export async function deactivateDayAction(input: { date?: unknown }): Promise<Cl
 
   if (!(await deactivateClubDay(day.date)))
     return { ok: false, error: "This day is already inactive. Reload the page." };
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
