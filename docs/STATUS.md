@@ -8,18 +8,13 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 4 — Profiles & members (in progress)
-- **Branch:** `slice-4-profiles-members` (from `v1`)
-- **State:** migration `20261116100000_member_profiles` applied on Neon
-  `dev`; `/profile`, `/admin/members` (search, edit + admin notes, roles
-  with self/`ADMIN_EMAILS` guards); member and role read from the DB per
-  request. Server field errors now clear when the field changes (all
-  forms). Tried end to end as test users; Google sign-in sync tested
-  against the dev DB. `npm run check` passes (104 tests). PR
-  `Slice 4: Profiles & members` open into `v1`.
-- **Next step:** merge the slice 4 PR, then start slice 5 (day view &
-  club days). `/admin/settings` on the `v1` preview is still unchecked
-  (slice 2).
+- **Current slice:** none in progress; slice 4 merged into `v1` (#8).
+- **Branch:** next slice branches from `v1`.
+- **State:** slices 0–4 done. Members have profiles (`/profile`), admins
+  manage members and roles (`/admin/members`); member and role are read
+  from the DB per request.
+- **Next step:** start slice 5 (day view & club days). `/admin/settings`
+  on the `v1` preview is still unchecked (slice 2).
 
 ## Slices
 
@@ -31,7 +26,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 1  | Admin tables                | Done        |
 | 2  | Admin settings & about      | Done        |
 | 3  | Booking rules               | Done        |
-| 4  | Profiles & members          | In progress |
+| 4  | Profiles & members          | Done        |
 | 5  | Day view & club days        | To do       |
 | 6  | Member booking              | To do       |
 | 7  | My bookings                 | To do       |
