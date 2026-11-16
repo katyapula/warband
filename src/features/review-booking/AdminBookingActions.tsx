@@ -10,8 +10,10 @@ import { CommentPrompt } from "./CommentPrompt";
 type Prompt = "reject" | "cancel" | "comment" | null;
 
 /**
- * An admin's buttons on one booking row: Approve / Reject (pending), Edit and
- * Cancel (open, not started), and Comment (always, past days included).
+ * An admin's buttons on one booking row, without overlaps: Approve / Reject
+ * (pending), Edit (open, not started; its modal holds the admin comment),
+ * Cancel (approved only: Reject frees a pending one), and Comment only where
+ * Edit isn't offered (past, rejected, cancelled, expired, completed).
  */
 export function AdminBookingActions({
   booking,
@@ -71,14 +73,16 @@ export function AdminBookingActions({
           Edit
         </Button>
       )}
-      {booking.canCancel && (
+      {booking.canCancel && !booking.canReview && (
         <Button size="small" danger type="text" aria-label={`Cancel ${who}`} onClick={() => setPrompt("cancel")}>
           Cancel
         </Button>
       )}
-      <Button size="small" type="text" aria-label={`Admin comment on ${who}`} onClick={() => setPrompt("comment")}>
-        {booking.adminComment ? "Edit comment" : "Comment"}
-      </Button>
+      {!booking.canEdit && (
+        <Button size="small" type="text" aria-label={`Admin comment on ${who}`} onClick={() => setPrompt("comment")}>
+          {booking.adminComment ? "Edit comment" : "Comment"}
+        </Button>
+      )}
 
       {prompt === "reject" && (
         <CommentPrompt
