@@ -45,6 +45,7 @@ export function DayStrip({
   isViewable,
   activeDates,
   ownDates,
+  pendingCounts,
   prev,
   next,
 }: {
@@ -55,6 +56,8 @@ export function DayStrip({
   activeDates: Set<string>;
   /** Days with the member's own blocking bookings (members only). */
   ownDates: Set<string>;
+  /** Admins only: pending (not expired) bookings per date. */
+  pendingCounts: Map<string, number>;
   prev: string | null;
   next: string | null;
 }) {
@@ -101,8 +104,10 @@ export function DayStrip({
             const isActive = activeDates.has(date);
             const hasOwn = ownDates.has(date);
             const markColor = isSelected ? "#fff" : ACCENT;
+            const pending = pendingCounts.get(date) ?? 0;
             const viewable = isViewable(date);
             const cell: CSSProperties = {
+              position: "relative",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -117,6 +122,29 @@ export function DayStrip({
             };
             const content = (
               <>
+                {pending > 0 && (
+                  <span
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      right: 2,
+                      minWidth: 16,
+                      height: 16,
+                      padding: "0 4px",
+                      boxSizing: "border-box",
+                      borderRadius: 8,
+                      background: "#d48806",
+                      color: "#fff",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      lineHeight: "16px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {pending}
+                  </span>
+                )}
                 <span style={{ fontSize: 12 }}>{p.weekday}</span>
                 <span style={{ fontSize: 18, fontWeight: 600 }}>{p.day}</span>
                 <span aria-hidden style={{ display: "flex", gap: 3, height: 6 }}>
@@ -142,7 +170,7 @@ export function DayStrip({
                 </span>
               </>
             );
-            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}`;
+            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}${pending ? `, ${pending} pending` : ""}`;
             return (
               <li key={date} style={{ flex: 1, minWidth: 0 }}>
                 {viewable ? (

@@ -60,6 +60,20 @@ describe("shapeDayBookings", () => {
     expect(shapeDayBookings(all, null, now).every((b) => b.memberId === null)).toBe(true);
   });
 
+  it("lets admins approve/reject pending and edit or cancel open bookings that haven't started", () => {
+    const out = shapeDayBookings(all, { id: "admin", isAdmin: true }, now);
+    const flags = (id: string) => {
+      const b = out.find((x) => x.id === id)!;
+      return [b.canReview, b.canEdit, b.canCancel];
+    };
+    expect(flags("own")).toEqual([true, true, true]); // pending
+    expect(flags("member")).toEqual([false, true, true]); // approved
+    expect(flags("cancelled")).toEqual([false, false, false]);
+    expect(flags("expired")).toEqual([false, false, false]);
+    const asMember = shapeDayBookings(all, { id: "me", isAdmin: false }, now);
+    expect(asMember.some((b) => b.canReview || b.canEdit)).toBe(false);
+  });
+
   it("shows the admin comment to the booker and admins only", () => {
     const commented = [row({ id: "c", userId: "me", adminComment: "Bring dice" }), row({ id: "o", adminComment: "Moved" })];
     const asMember = shapeDayBookings(commented, { id: "me", isAdmin: false }, now);

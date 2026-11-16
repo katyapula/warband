@@ -1,6 +1,6 @@
 // What each role may see of a day's bookings (docs/ARCHITECTURE.md → "Data
 // visibility"). The repository calls this before anything reaches the UI.
-import { canCancel, displayStatus, isBlocking, type ShownStatus, type StoredStatus } from "./status";
+import { canCancel, canEdit, canReview, displayStatus, isBlocking, type ShownStatus, type StoredStatus } from "./status";
 
 /** A booking as loaded for the day view, before shaping. */
 export type DayBookingRow = {
@@ -42,6 +42,10 @@ export type DayBooking = {
   adminComment: string | null;
   /** The viewer may cancel it now (see `canCancel`). */
   canCancel: boolean;
+  /** Admins: approve / reject now. */
+  canReview: boolean;
+  /** Admins: edit now. */
+  canEdit: boolean;
 };
 
 /**
@@ -75,6 +79,8 @@ export function shapeDayBookings(rows: DayBookingRow[], viewer: Viewer, now: Dat
         walkInContact: isAdmin ? b.walkInContact : null,
         adminComment: seesDetails ? b.adminComment : null,
         canCancel: viewer !== null && canCancel(b, viewer, now),
+        canReview: viewer !== null && canReview(b, viewer, now),
+        canEdit: viewer !== null && canEdit(b, viewer, now),
       };
     });
 }

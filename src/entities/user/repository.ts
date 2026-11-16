@@ -52,6 +52,14 @@ export function listMemberProfiles(ids: string[]): Promise<MemberRow[]> {
   return prisma.user.findMany({ where: { id: { in: ids } }, select: rowSelect });
 }
 
+/** Admin booker autocomplete: every member's id, username and full name. */
+export function listBookerOptions(): Promise<{ id: string; username: string; fullName: string | null }[]> {
+  return prisma.user.findMany({
+    select: { id: true, username: true, fullName: true },
+    orderBy: { username: "asc" },
+  });
+}
+
 export function getOwnProfile(id: string): Promise<OwnProfile | null> {
   return prisma.user.findUnique({
     where: { id },

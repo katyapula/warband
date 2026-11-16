@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { freeGaps } from "@/entities/booking/gaps";
-import { listBlockingOnDate, listDayBookings, listOwnBookingDates } from "@/entities/booking/repository";
+import {
+  listBlockingOnDate,
+  listDayBookings,
+  listOwnBookingDates,
+  listPendingCounts,
+} from "@/entities/booking/repository";
 import {
   canChangeDay,
   landingDate,
@@ -11,7 +16,7 @@ import {
 } from "@/entities/club/calendar";
 import { getClubSettings, listClubDays } from "@/entities/club/repository";
 import { listActiveTables } from "@/entities/table/repository";
-import { listMemberProfiles } from "@/entities/user/repository";
+import { listBookerOptions, listMemberProfiles } from "@/entities/user/repository";
 import type { MemberCard } from "@/entities/user/ui/MemberCardModal";
 import { ClubDayControls } from "@/features/manage-club-days/ClubDayControls";
 import { getConfig } from "@/shared/config";
@@ -19,9 +24,15 @@ import { getMember } from "@/shared/lib/auth/session";
 import { isAdmin as hasAdminRole } from "@/shared/lib/auth/roles";
 import { dateInZone, formatDate, timeRangeInZone } from "@/shared/lib/time";
 import { DayStrip } from "@/widgets/day-strip/DayStrip";
-import { DayTables, type AddContext, type DayTable } from "./DayTables";
+import { DayTables, type AddContext, type AdminContext, type DayTable } from "./DayTables";
 
 const muted = { margin: 0, opacity: 0.65 } as const;
+
+/** "12:00–14:00" → its parts, plus the whole for display. */
+const times = (time: string) => {
+  const [startTime = "", endTime = ""] = time.split("–");
+  return { time, startTime, endTime };
+};
 
 /**
  * Home: club header, day strip, and the selected day (`?date=`) as the
@@ -48,12 +59,15 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
   const date = resolved.date;
 
   const week = weekOf(date);
-  const [settings, weekDays, ownDates] = await Promise.all([
+  const [settings, weekDays, ownDates, pendingCounts] = await Promise.all([
     getClubSettings(),
     listClubDays(week[0]!, week[6]!),
     member && !isAdmin
       ? listOwnBookingDates({ userId: member.id, first: week[0]!, last: week[6]!, now, timeZone })
       : new Set<string>(),
+    isAdmin
+      ? listPendingCounts({ first: week[0]!, last: week[6]!, now, timeZone })
+      : new Map<string, number>(),
   ]);
   const day = weekDays.find((d) => d.date === date) ?? null;
   const isActive = day?.isActive ?? false;
@@ -86,7 +100,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
         .filter((b) => b.tableId === t.id)
         .map((b) => ({
           id: b.id,
-          time: timeRangeInZone(b.startsAt, b.endsAt, timeZone),
+          ...times(timeRangeInZone(b.startsAt, b.endsAt, timeZone)),
           label: b.label,
           isOwn: b.isOwn,
           isWalkIn: b.isWalkIn,
@@ -96,9 +110,20 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
           walkInContact: b.walkInContact,
           adminComment: b.adminComment,
           canCancel: b.canCancel,
+          canReview: b.canReview,
+          canEdit: b.canEdit,
         })),
     }));
   }
+  const admin: AdminContext = isAdmin
+    ? {
+        date,
+        canAdd: isActive && canChangeDay(date, today, bookingWindowDays),
+        dates: upcomingActive,
+        bookers: isActive ? await listBookerOptions() : [],
+        rules: { slotStepMinutes, minBookingMinutes },
+      }
+    : null;
   const dateLabel = formatDate(date, { weekday: "long", day: "numeric", month: "long" });
   const add: AddContext =
     canAdd && day
@@ -123,6 +148,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
         isViewable={inRange}
         activeDates={new Set(weekDays.filter((d) => d.isActive).map((d) => d.date))}
         ownDates={ownDates}
+        pendingCounts={pendingCounts}
         prev={prev}
         next={next}
       />
@@ -154,7 +180,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
         )}
 
         {isActive ? (
-          <DayTables tables={tables} isAdmin={isAdmin} add={add} members={members} />
+          <DayTables tables={tables} isAdmin={isAdmin} add={add} admin={admin} members={members} />
         ) : (
           !isAdmin && (
             <p style={{ margin: "24px 0", fontSize: 16 }}>

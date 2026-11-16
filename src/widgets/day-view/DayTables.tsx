@@ -7,13 +7,18 @@ import type { Gap, SlotRules } from "@/entities/booking/gaps";
 import type { ShownStatus } from "@/entities/booking/status";
 import { StatusTag } from "@/entities/booking/ui/StatusTag";
 import { MemberCardModal, type MemberCard } from "@/entities/user/ui/MemberCardModal";
+import type { BookerOption } from "@/entities/booking/booker";
+import { AdminBookingModal, type AdminBookingTarget } from "@/features/booking-form/AdminBookingModal";
 import { BookingModal } from "@/features/booking-form/BookingModal";
 import { CancelBookingButton } from "@/features/cancel-booking/CancelBookingButton";
+import { AdminBookingActions } from "@/features/review-booking/AdminBookingActions";
 
 /** A booking row, already shaped for the viewer (entities/booking/dayView). */
 export type DayTableBooking = {
   id: string;
   time: string; // "12:00–14:00", club-local
+  startTime: string;
+  endTime: string;
   label: string;
   isOwn: boolean;
   isWalkIn: boolean;
@@ -24,6 +29,8 @@ export type DayTableBooking = {
   walkInContact: string | null;
   adminComment: string | null;
   canCancel: boolean;
+  canReview: boolean;
+  canEdit: boolean;
 };
 
 export type DayTable = {
@@ -43,21 +50,35 @@ export type AddContext = {
   rules: SlotRules;
 } | null;
 
+/** What the admin Add / Edit modal needs. Null for non-admins. */
+export type AdminContext = {
+  date: string;
+  /** Add is offered on days from today to the end of the window. */
+  canAdd: boolean;
+  /** Active dates from today to the end of the window. */
+  dates: string[];
+  bookers: BookerOption[];
+  rules: SlotRules;
+} | null;
+
 /** The selected day's tables, each with its bookings in time order. */
 export function DayTables({
   tables,
   isAdmin,
   add,
+  admin = null,
   members = {},
 }: {
   tables: DayTable[];
   isAdmin: boolean;
   add: AddContext;
+  admin?: AdminContext;
   /** Admins only: profiles of the members booked on this day, by id. */
   members?: Record<string, MemberCard>;
 }) {
   const [adding, setAdding] = useState<DayTable | null>(null);
   const [viewing, setViewing] = useState<MemberCard | null>(null);
+  const [adminTarget, setAdminTarget] = useState<AdminBookingTarget | null>(null);
 
   if (tables.length === 0) {
     return (
@@ -85,6 +106,16 @@ export function DayTables({
           extra={
             <Flex gap={12} align="center">
               {t.description && <Typography.Text type="secondary">{t.description}</Typography.Text>}
+              {admin?.canAdd && (
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() => setAdminTarget({ mode: "add", tableId: t.id, date: admin.date })}
+                  aria-label={`Add booking on ${t.name}`}
+                >
+                  Add
+                </Button>
+              )}
               {add && t.gaps.length > 0 && (
                 <Button size="small" type="primary" onClick={() => setAdding(t)} aria-label={`Add booking on ${t.name}`}>
                   Add
@@ -125,6 +156,28 @@ export function DayTables({
                     {isAdmin && b.isWalkIn && <Tag>Walk-in</Tag>}
                     {b.isOwn && !isAdmin && <Tag color="purple">You</Tag>}
                     {b.status && <StatusTag status={b.status} />}
+                    {admin && (
+                      <AdminBookingActions
+                        booking={b}
+                        onEdit={() =>
+                          setAdminTarget({
+                            mode: "edit",
+                            booking: {
+                              id: b.id,
+                              tableId: t.id,
+                              date: admin.date,
+                              startTime: b.startTime,
+                              endTime: b.endTime,
+                              note: b.note,
+                              adminComment: b.adminComment,
+                              isWalkIn: b.isWalkIn,
+                              label: b.label,
+                              walkInContact: b.walkInContact,
+                            },
+                          })
+                        }
+                      />
+                    )}
                     {b.canCancel && !isAdmin && (
                       <span style={{ marginLeft: "auto" }}>
                         <CancelBookingButton bookingId={b.id} time={b.time} />
@@ -148,6 +201,16 @@ export function DayTables({
         </Card>
       ))}
       {isAdmin && <MemberCardModal member={viewing} onClose={() => setViewing(null)} />}
+      {admin && adminTarget && (
+        <AdminBookingModal
+          target={adminTarget}
+          onClose={() => setAdminTarget(null)}
+          tables={tables}
+          dates={admin.dates}
+          members={admin.bookers}
+          rules={admin.rules}
+        />
+      )}
       {add && adding && (
         <BookingModal
           open
