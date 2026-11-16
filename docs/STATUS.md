@@ -67,6 +67,11 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.
 - **Old Google API key:** the previous version committed one in
   `src/app/constants.ts`. Confirm it was rotated in Google Cloud.
+- **Dependency alerts (2026-11-16):** Dependabot alerts fixed (vitest 4,
+  postcss override for Next 15 in `package.json`). Left: `deepmerge-ts`
+  in the Prisma CLI (high, CLI-only), fixed by Prisma 7. Drop the postcss
+  override when moving to Next 16. npm 10.9.2 crashes on vitest 4's
+  peers (`edgesOut`); use `npx npm@11 install` for dependency changes.
 - **Old Neon `dev` data** still has v1 test bookings; reset it whenever
   convenient.
 - **Restart `npm run dev` after every migration.** `shared/lib/prisma.ts`

@@ -37,6 +37,11 @@
     "prisma": "^6.19.3",
     "typescript": "^5.9.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.33"
+    }
   }
 }
