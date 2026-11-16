@@ -11,14 +11,11 @@ const sections = [
 
 // Admin home: a card per admin area. Plain elements, styled in globals.css (.wb-admin-*).
 export default async function AdminPage() {
-  const admin = await requireAdminPage("/admin");
+  await requireAdminPage("/admin");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <div>
-        <h2 style={{ margin: 0 }}>Admin</h2>
-        <p className="wb-admin-sub">Signed in as {admin.username}</p>
-      </div>
+      <h2 style={{ margin: 0 }}>Admin</h2>
       <ul className="wb-admin-grid">
         {sections.map((s) => (
           <li key={s.href}>

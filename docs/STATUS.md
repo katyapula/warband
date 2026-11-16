@@ -22,8 +22,11 @@ _Last updated: 2026-11-16_
   version ideas" in `PRODUCT.md`.
 - **Design refresh:** merged to `main` (#15): new helmet mark, app icon,
   all 8 steps in [`DESIGN.md`](./DESIGN.md), plus a designed `/admin`
-  home and a visible Sign out on the dark bar. Next: check it on
-  production in light and dark mode.
+  home and a visible Sign out on the dark bar. On branch `design-fixes`
+  (not merged): the app is now dark only, with a charcoal palette instead
+  of brown (fixes the light flash), plus outlined "Booked" timeline
+  segments, unique mask ids and a11y nits. Next: review the new palette
+  in a browser; the app icon and social card still use the old look.
 - **Releasing a schema change:** Vercel doesn't run migrations. Run
   `prisma migrate deploy` against the production database before (or
   right as) the code that needs it reaches `main`.

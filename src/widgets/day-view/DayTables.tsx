@@ -14,7 +14,7 @@ import { AdminBookingActions } from "@/features/review-booking/AdminBookingActio
 import { BrandTag } from "@/shared/ui/BrandTag";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { brand } from "@/shared/ui/theme";
-import { segmentFill, segmentLabel, TableTimeline } from "./TableTimeline";
+import { segmentLabel, segmentStyle, TableTimeline } from "./TableTimeline";
 import { segmentKind, type Hours, type SegmentKind } from "./timeline";
 
 /** A booking row, already shaped for the viewer (entities/booking/dayView). */
@@ -249,7 +249,7 @@ function TimelineLegend({ kinds }: { kinds: Set<SegmentKind> }) {
     <Flex gap={16} wrap style={{ fontSize: 13 }} aria-hidden>
       {LEGEND_ORDER.filter((k) => kinds.has(k)).map((k) => (
         <Flex key={k} gap={6} align="center">
-          <span style={{ width: 16, height: 10, borderRadius: 3, background: segmentFill[k] }} />
+          <span style={{ width: 16, height: 10, borderRadius: 3, ...segmentStyle[k] }} />
           {segmentLabel[k]}
         </Flex>
       ))}

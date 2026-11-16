@@ -39,8 +39,8 @@ antd, theme it). Anti-goal: "fantasy" kitsch that hurts legibility
 - **Step 4, table timeline.** `TableTimeline.tsx` draws each table's open
   hours as a 12px bar with hour ticks (every 2h past 8h); geometry is in
   `timeline.ts` (tested). Fills: approved = solid brick, pending = brass
-  stripes (texture, so it isn't hue-only), someone else's = grey
-  `#6f675f`; empty track = free. Cancelled/expired bookings and time
+  stripes, someone else's = light grey block with a grey outline (each
+  differs by shape or lightness, not just hue); empty track = free. Cancelled/expired bookings and time
   outside the hours aren't drawn. A legend shows when a day has 2+ kinds
   (visitors only ever see grey, so no legend). The bar is `aria-hidden`:
   the booking list under it says the same in text. Hidden on inactive
@@ -55,15 +55,20 @@ antd, theme it). Anti-goal: "fantasy" kitsch that hurts legibility
 - **Step 7, social card.** `src/app/opengraph-image.png` (1200×630,
   rendered from HTML with the real fonts) + `.alt.txt`. Next adds the
   `og:image` tags. To redo it, render a 1200×630 page and screenshot it.
-- **Step 8, dark mode.** Follows the system setting. Colors are CSS
-  variables (`--wb-*` in `globals.css`, light in `:root`, dark under
-  `prefers-color-scheme: dark`); `brand` in `theme.ts` points at them for
-  inline styles. antd needs hex, so `palette.light/dark` + `themeFor(mode)`
-  with `useColorMode()` (server renders light). Brand-colored tags use
-  `BrandTag` instead of antd `Tag color`, whose tint assumes light.
-  Known trade-off: in dark mode, antd components (cards, buttons) render
-  light for a moment before hydration; page background, header and strip
-  are dark from the first paint. No manual light/dark switch yet.
+- **Step 8, dark mode.** Superseded by *Dark only* below.
+- **Dark only (2026-11-16).** Light mode and the system-setting switch
+  are gone: following the system made antd components flash light before
+  hydration, and cookie / client-hint workarounds didn't stop it. The app
+  is always dark, so the server renders the final colors. The brown
+  (bone/ink) palette was replaced by cool charcoal with the brick, brass
+  and moss accents kept (Brand tokens below). Colors are `--wb-*`
+  variables in `globals.css`; `palette` + `appTheme` in `theme.ts` are
+  the hex twins antd needs. Brand-colored tags use `BrandTag` instead of
+  antd `Tag color`.
+- **Review fixes.** The timeline's "Booked" segments are outlined so
+  they don't rely on hue; each `Mark` has its own mask id (`useId`); the
+  phone menu's nav is labelled "Menu" so it doesn't clash with the bar's
+  "Main"; `/admin` drops the "Signed in as" line the header already shows.
 - **Admin home + bar button.** `/admin` is a grid of brand cards
   (`.wb-admin-*`) instead of a bare list. Sign out on the header bar is
   a plain `.wb-bar-button` in `--wb-on-bar` colors: antd's `ghost`
@@ -72,26 +77,30 @@ antd, theme it). Anti-goal: "fantasy" kitsch that hurts legibility
 ## Brand tokens
 
 One file, `src/shared/ui/theme.ts`, used by `AppShell`'s `ConfigProvider`
-and by anything that styles itself (`DayStrip` currently hard-codes
-`ACCENT`).
+and by anything that styles itself.
 
-| Token       | Value     | Use                                    |
-| ----------- | --------- | -------------------------------------- |
-| `brick`     | `#8b2a22` | primary: buttons, selected day, links  |
-| `brickDark` | `#6e1f19` | hover/active                           |
-| `ink`       | `#1f1a17` | text, header bar                       |
-| `bone`      | `#f6efe3` | page background                        |
-| `paper`     | `#fffdf8` | cards, modals                          |
-| `brass`     | `#8a6219` | pending badge, highlights (replaces `#d48806`) |
-| `moss`      | `#4f6b3a` | approved status                        |
+Dark only. Values live in `src/app/globals.css` (`--wb-*`) and, as hex
+for antd, `palette` in `src/shared/ui/theme.ts`.
 
-Dark mode values (and the token names used in code) are in
-`src/app/globals.css` and `palette` in `src/shared/ui/theme.ts`.
+| Token (`--wb-`) | Value     | Use                                      |
+| --------------- | --------- | ---------------------------------------- |
+| `primary`       | `#b3362b` | brick: buttons, selected day (white text 6:1) |
+| `accent`        | `#ef7a63` | ember: links, underlines, today ring (6:1 on surface) |
+| `text`          | `#e6e8ec` | body text (13.5:1 on surface)            |
+| `bg`            | `#121418` | charcoal page background                 |
+| `surface`       | `#1c1f25` | cards, modals, open days                 |
+| `bar`           | `#0b0c0f` | header bar                               |
+| `brass`         | `#d9a94f` | pending, attention pill (7.7:1)          |
+| `moss`          | `#8fbf73` | approved status (7.8:1)                  |
+| `taken`         | `#8a919c` | someone else's booking on the timeline   |
+
+The app icon (`src/app/icon.svg`) and social card still use the old
+cream/brick look.
 
 Fonts via `next/font/google`: **Oswald** (600, uppercase) for the
 wordmark, page titles, table names and day numbers; **Inter** for body.
-antd tokens: `colorPrimary`, `colorBgLayout: bone`,
-`colorBgContainer: paper`, `colorText: ink`, `borderRadius: 8`,
+antd tokens (`darkAlgorithm`): `colorPrimary`, `colorBgLayout: bg`,
+`colorBgContainer: surface`, `colorText: text`, `borderRadius: 8`,
 `fontFamily: Inter`.
 
 ## Improvements, in order
@@ -121,9 +130,7 @@ antd tokens: `colorPrimary`, `colorBgLayout: bone`,
 7. ~~**Social card**~~ (done). `src/app/opengraph-image.png` (1200×630, bone
    background, mark, wordmark, tagline) so links shared in chat look like
    the club.
-8. ~~**Dark mode**~~ (done). Tokens are set up for it; add an antd
-   `darkAlgorithm` variant with ink background once the light theme is
-   settled.
+8. ~~**Dark mode**~~ (done, then made the only mode).
 
 Each step is its own PR from `main`; 1 must land first, the rest are
 independent.

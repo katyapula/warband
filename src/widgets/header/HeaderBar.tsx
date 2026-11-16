@@ -71,7 +71,7 @@ export function HeaderBar({
         size={280}
         title="Menu"
       >
-        <nav aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 24 }}>
+        <nav aria-label="Menu" style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 24 }}>
           {links.map((l) => {
             const current = isCurrent(pathname, l.href);
             return (

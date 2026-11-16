@@ -1,33 +1,19 @@
 import { theme as antdTheme, type ThemeConfig } from "antd";
 
 /**
- * Warband colors per mode (docs/DESIGN.md → Brand tokens). Hex values feed
+ * Warband colors (docs/DESIGN.md → Brand tokens). Dark only. Hex values feed
  * antd, which needs real colors to derive hovers and tints; everything else
- * uses `brand` below, which reads the matching CSS variables from
- * globals.css so it follows the system light/dark setting without JS.
+ * uses `brand` below, which reads the matching CSS variables in globals.css.
  */
 export const palette = {
-  light: {
-    primary: "#8b2a22", // brick: buttons, selected day
-    accent: "#8b2a22", // brick as text/lines
-    text: "#1f1a17", // ink
-    bg: "#f6efe3", // bone
-    surface: "#fffdf8", // paper
-    brass: "#8a6219",
-    moss: "#4f6b3a",
-  },
-  dark: {
-    primary: "#a8382b",
-    accent: "#e07a62",
-    text: "#efe6d8",
-    bg: "#171311",
-    surface: "#221c18",
-    brass: "#d9a94f",
-    moss: "#9cba7a",
-  },
+  primary: "#b3362b", // brick: buttons, selected day
+  accent: "#ef7a63", // ember: links, lines and text on dark
+  text: "#e6e8ec",
+  bg: "#121418", // charcoal
+  surface: "#1c1f25",
+  brass: "#d9a94f",
+  moss: "#8fbf73",
 } as const;
-
-export type Mode = keyof typeof palette;
 
 const v = (name: string) => `var(--wb-${name})`;
 
@@ -58,24 +44,21 @@ export const fonts = {
   display: "var(--font-display), var(--font-body), sans-serif",
 } as const;
 
-export function themeFor(mode: Mode): ThemeConfig {
-  const p = palette[mode];
-  return {
-    algorithm: mode === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-    token: {
-      colorPrimary: p.primary,
-      colorLink: p.accent,
-      colorText: p.text,
-      colorBgLayout: p.bg,
-      colorBgContainer: p.surface,
-      colorBgElevated: p.surface,
-      colorWarning: p.brass,
-      colorSuccess: p.moss,
-      borderRadius: 8,
-      fontFamily: fonts.body,
-    },
-    components: {
-      Layout: { headerBg: "transparent", bodyBg: p.bg },
-    },
-  };
-}
+export const appTheme: ThemeConfig = {
+  algorithm: antdTheme.darkAlgorithm,
+  token: {
+    colorPrimary: palette.primary,
+    colorLink: palette.accent,
+    colorText: palette.text,
+    colorBgLayout: palette.bg,
+    colorBgContainer: palette.surface,
+    colorBgElevated: palette.surface,
+    colorWarning: palette.brass,
+    colorSuccess: palette.moss,
+    borderRadius: 8,
+    fontFamily: fonts.body,
+  },
+  components: {
+    Layout: { headerBg: "transparent", bodyBg: palette.bg },
+  },
+};

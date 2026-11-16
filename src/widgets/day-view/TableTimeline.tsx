@@ -3,11 +3,14 @@ import type { ShownStatus } from "@/entities/booking/status";
 import { brand, tint } from "@/shared/ui/theme";
 import { hourTicks, timelineSegments, type Hours, type SegmentKind } from "./timeline";
 
-/** Fills per kind. Pending is striped so it never relies on hue alone. */
-export const segmentFill: Record<SegmentKind, string> = {
-  approved: brand.primary,
-  pending: `repeating-linear-gradient(135deg, ${brand.brass} 0 3px, var(--wb-brass-light) 3px 6px)`,
-  taken: brand.taken,
+/**
+ * Look per kind, so none relies on hue alone: approved is solid, pending is
+ * striped, someone else's booking is a light outlined block.
+ */
+export const segmentStyle: Record<SegmentKind, CSSProperties> = {
+  approved: { background: brand.primary },
+  pending: { background: `repeating-linear-gradient(135deg, ${brand.brass} 0 3px, var(--wb-brass-light) 3px 6px)` },
+  taken: { background: tint(brand.taken, 30), boxShadow: `inset 0 0 0 1.5px ${brand.taken}` },
 };
 
 export const segmentLabel: Record<SegmentKind, string> = {
@@ -63,7 +66,7 @@ export function TableTimeline({
             width: `calc(${s.width}% - 2px)`,
             minWidth: 2,
             borderRadius: 4,
-            background: segmentFill[s.kind],
+            ...segmentStyle[s.kind],
           };
           return <span key={s.booking.id} style={style} title={`${s.booking.time} · ${segmentLabel[s.kind]}`} />;
         })}
