@@ -4,6 +4,9 @@
 import { addDays, dateInZone, isIsoDate, localTimeToUtc, toMinutes } from "@/shared/lib/time";
 import { isBlocking, type TimedBooking } from "./status";
 
+/** Longest note a booking may carry. */
+export const BOOKING_NOTE_MAX = 500;
+
 export type BookingConfig = {
   timeZone: string;
   bookingWindowDays: number;

@@ -46,6 +46,12 @@ export function listMembers(): Promise<MemberRow[]> {
   });
 }
 
+/** Admins only: full profiles (with admin notes) of the given members. */
+export function listMemberProfiles(ids: string[]): Promise<MemberRow[]> {
+  if (ids.length === 0) return Promise.resolve([]);
+  return prisma.user.findMany({ where: { id: { in: ids } }, select: rowSelect });
+}
+
 export function getOwnProfile(id: string): Promise<OwnProfile | null> {
   return prisma.user.findUnique({
     where: { id },

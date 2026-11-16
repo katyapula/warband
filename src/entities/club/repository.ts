@@ -34,7 +34,9 @@ export async function updateDefaultHours(hours: WorkingHours): Promise<void> {
 export type ClubDayView = WorkingHours & { date: string; isActive: boolean };
 
 // `ClubDay.date` is a Postgres DATE; Prisma reads and writes it as UTC midnight.
-const toDb = (date: string) => new Date(`${date}T00:00:00Z`);
+/** A club-local "YYYY-MM-DD" as the value Prisma stores in `ClubDay.date`. */
+export const clubDayKey = (date: string) => new Date(`${date}T00:00:00Z`);
+const toDb = clubDayKey;
 const fromDb = (date: Date) => date.toISOString().slice(0, 10);
 
 /** Club day rows (active or not) from `first` to `last`, inclusive, by date. */
