@@ -11,6 +11,8 @@ import {
 } from "@/entities/club/calendar";
 import { getClubSettings, listClubDays } from "@/entities/club/repository";
 import { listActiveTables } from "@/entities/table/repository";
+import { listMemberProfiles } from "@/entities/user/repository";
+import type { MemberCard } from "@/entities/user/ui/MemberCardModal";
 import { ClubDayControls } from "@/features/manage-club-days/ClubDayControls";
 import { getConfig } from "@/shared/config";
 import { getMember } from "@/shared/lib/auth/session";
@@ -60,6 +62,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
   // Members add their own bookings here; the admin Add modal comes in slice 9.
   const canAdd = member !== null && !isAdmin;
   let tables: DayTable[] = [];
+  let members: Record<string, MemberCard> = {};
   if (isActive && day) {
     const rows = await listActiveTables();
     const tableIds = rows.map((t) => t.id);
@@ -67,6 +70,13 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
       listDayBookings({ date, tableIds, viewer, now, timeZone }),
       canAdd ? listBlockingOnDate({ date, tableIds, now, timeZone }) : new Map(),
     ]);
+    if (isAdmin) {
+      const ids = [...new Set(bookings.flatMap((b) => (b.memberId ? [b.memberId] : [])))];
+      const profiles = await listMemberProfiles(ids);
+      members = Object.fromEntries(
+        profiles.map((p) => [p.id, { ...p, createdAt: p.createdAt.toISOString() }]),
+      );
+    }
     tables = rows.map((t) => ({
       ...t,
       gaps: canAdd
@@ -80,6 +90,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
           label: b.label,
           isOwn: b.isOwn,
           isWalkIn: b.isWalkIn,
+          memberId: b.memberId,
           status: b.status,
           note: b.note,
           walkInContact: b.walkInContact,
@@ -143,7 +154,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
         )}
 
         {isActive ? (
-          <DayTables tables={tables} isAdmin={isAdmin} add={add} />
+          <DayTables tables={tables} isAdmin={isAdmin} add={add} members={members} />
         ) : (
           !isAdmin && (
             <p style={{ margin: "24px 0", fontSize: 16 }}>

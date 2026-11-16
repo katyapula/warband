@@ -52,6 +52,14 @@ describe("shapeDayBookings", () => {
     expect(out.find((b) => b.id === "expired")!.status).toBe("EXPIRED");
   });
 
+  it("gives admins the member behind each member booking, nobody else", () => {
+    const asAdmin = shapeDayBookings(all, { id: "admin", isAdmin: true }, now);
+    expect(asAdmin.find((b) => b.id === "member")!.memberId).toBe("u-other");
+    expect(asAdmin.find((b) => b.id === "walkin")!.memberId).toBeNull();
+    expect(shapeDayBookings(all, { id: "me", isAdmin: false }, now).every((b) => b.memberId === null)).toBe(true);
+    expect(shapeDayBookings(all, null, now).every((b) => b.memberId === null)).toBe(true);
+  });
+
   it("shows the admin comment to the booker and admins only", () => {
     const commented = [row({ id: "c", userId: "me", adminComment: "Bring dice" }), row({ id: "o", adminComment: "Moved" })];
     const asMember = shapeDayBookings(commented, { id: "me", isAdmin: false }, now);

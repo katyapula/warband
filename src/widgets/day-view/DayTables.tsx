@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { Gap, SlotRules } from "@/entities/booking/gaps";
 import type { ShownStatus } from "@/entities/booking/status";
 import { StatusTag } from "@/entities/booking/ui/StatusTag";
+import { MemberCardModal, type MemberCard } from "@/entities/user/ui/MemberCardModal";
 import { BookingModal } from "@/features/booking-form/BookingModal";
 import { CancelBookingButton } from "@/features/cancel-booking/CancelBookingButton";
 
@@ -16,6 +17,8 @@ export type DayTableBooking = {
   label: string;
   isOwn: boolean;
   isWalkIn: boolean;
+  /** Admins only: the member who booked (null for walk-ins). */
+  memberId: string | null;
   status: ShownStatus | null;
   note: string | null;
   walkInContact: string | null;
@@ -45,12 +48,16 @@ export function DayTables({
   tables,
   isAdmin,
   add,
+  members = {},
 }: {
   tables: DayTable[];
   isAdmin: boolean;
   add: AddContext;
+  /** Admins only: profiles of the members booked on this day, by id. */
+  members?: Record<string, MemberCard>;
 }) {
   const [adding, setAdding] = useState<DayTable | null>(null);
+  const [viewing, setViewing] = useState<MemberCard | null>(null);
 
   if (tables.length === 0) {
     return (
@@ -102,7 +109,19 @@ export function DayTables({
                     <Typography.Text strong style={{ fontVariantNumeric: "tabular-nums" }}>
                       {b.time}
                     </Typography.Text>
-                    <span>{b.label}</span>
+                    {b.memberId && members[b.memberId] ? (
+                      <Button
+                        type="link"
+                        size="small"
+                        style={{ padding: 0, height: "auto" }}
+                        onClick={() => setViewing(members[b.memberId!]!)}
+                        aria-label={`Show ${b.label}'s profile`}
+                      >
+                        {b.label}
+                      </Button>
+                    ) : (
+                      <span>{b.label}</span>
+                    )}
                     {isAdmin && b.isWalkIn && <Tag>Walk-in</Tag>}
                     {b.isOwn && !isAdmin && <Tag color="purple">You</Tag>}
                     {b.status && <StatusTag status={b.status} />}
@@ -128,6 +147,7 @@ export function DayTables({
           )}
         </Card>
       ))}
+      {isAdmin && <MemberCardModal member={viewing} onClose={() => setViewing(null)} />}
       {add && adding && (
         <BookingModal
           open

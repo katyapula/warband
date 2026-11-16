@@ -30,6 +30,8 @@ export type DayBooking = {
   label: string;
   isOwn: boolean;
   isWalkIn: boolean;
+  /** Admins only: the member who booked (null for walk-ins). */
+  memberId: string | null;
   /** Own bookings and admins only. */
   status: ShownStatus | null;
   /** Own bookings and admins only. */
@@ -67,6 +69,7 @@ export function shapeDayBookings(rows: DayBookingRow[], viewer: Viewer, now: Dat
         label,
         isOwn,
         isWalkIn,
+        memberId: isAdmin ? b.userId : null,
         status: seesDetails ? displayStatus(b, now) : null,
         note: seesDetails ? b.note : null,
         walkInContact: isAdmin ? b.walkInContact : null,
