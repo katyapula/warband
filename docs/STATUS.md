@@ -8,12 +8,16 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 3 — Booking rules (not started)
-- **Branch:** none yet; create `slice-3-booking-rules` from `v1`.
-- **State:** slice 2 merged into `v1` (#6). Its migration is applied on
-  Neon `dev`. `/admin/settings` hasn't been tried signed in as an admin yet.
-- **Next step:** check `/admin/settings` as an admin on the `v1` preview,
-  then start slice 3 per its row in `PLAN.md` (test-first).
+- **Current slice:** 3 — Booking rules (in progress)
+- **Branch:** `slice-3-booking-rules` (from `v1`)
+- **State:** pure rules written test-first in `src/entities/booking/`
+  (`rules.ts`: checks 1–7 + edit rule; `status.ts`: derived statuses,
+  blocking, On inactive day, Needs attention, cancel/edit/review
+  permissions) and club-time helpers in `src/shared/lib/time.ts`.
+  `npm run check` passes (85 tests). PR `Slice 3: Booking rules` open
+  into `v1`.
+- **Next step:** merge the slice 3 PR, check `/admin/settings` as an
+  admin on the `v1` preview (left from slice 2), then start slice 4 or 5.
 
 ## Slices
 
@@ -24,7 +28,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 0  | Foundation                  | Done        |
 | 1  | Admin tables                | Done        |
 | 2  | Admin settings & about      | Done        |
-| 3  | Booking rules               | To do       |
+| 3  | Booking rules               | In progress |
 | 4  | Profiles & members          | To do       |
 | 5  | Day view & club days        | To do       |
 | 6  | Member booking              | To do       |
@@ -35,6 +39,10 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 
 ## Loose ends
 
+- **Blocking in queries (slice 6):** `isBlocking` is an in-memory
+  predicate. Slice 6 needs the same rule as a Prisma `where`
+  (`APPROVED`, or `PENDING` with `startsAt > now`); keep it next to
+  `status.ts` (ADR 0001: one helper, not scattered clauses).
 - **`validateWorkingHours`** in `entities/club/model.ts` is meant to be
   reused by slice 5 (activate / edit hours of a day).
 - **Docs trimmed 2026-11-16:** member edit, Clear, archive page, accounts
