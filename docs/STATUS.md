@@ -8,14 +8,12 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 2 — Admin settings & about (in progress)
-- **Branch:** `scrum-9-admin-settings` (from `v1`)
-- **State:** reworked to the club-day model: migration
-  `20261116000000_club_days` (applied on Neon `dev`), club info + default
-  working hours form, `/about`, About link in the header. `npm run check`
-  passes. Not yet committed; `/admin/settings` not yet tried signed in.
-- **Next step:** try `/admin/settings` as an admin on a Vercel preview,
-  then open the PR `Slice 2: Admin settings & about` into `v1`.
+- **Current slice:** 3 — Booking rules (not started)
+- **Branch:** none yet; create `slice-3-booking-rules` from `v1`.
+- **State:** slice 2 merged into `v1` (#6). Its migration is applied on
+  Neon `dev`. `/admin/settings` hasn't been tried signed in as an admin yet.
+- **Next step:** check `/admin/settings` as an admin on the `v1` preview,
+  then start slice 3 per its row in `PLAN.md` (test-first).
 
 ## Slices
 
@@ -25,7 +23,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | -- | --------------------------- | ----------- |
 | 0  | Foundation                  | Done        |
 | 1  | Admin tables                | Done        |
-| 2  | Admin settings & about      | In progress |
+| 2  | Admin settings & about      | Done        |
 | 3  | Booking rules               | To do       |
 | 4  | Profiles & members          | To do       |
 | 5  | Day view & club days        | To do       |
