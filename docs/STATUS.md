@@ -2,39 +2,38 @@
 
 The hand-off note between sessions. Read it at the start of a session; update
 it at the end of one (or whenever a slice changes state). Keep it short:
-what's true *now* and what to do next. History lives in git and Jira.
+what's true *now* and what to do next. History lives in git.
 
 _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 2 — Admin settings & about
-  ([SCRUM-9](https://katyapula.atlassian.net/browse/SCRUM-9), In Progress)
+- **Current slice:** 2 — Admin settings & about (in progress)
 - **Branch:** `scrum-9-admin-settings` (from `v1`)
 - **State:** in-progress code builds the *old* model (weekly opening hours,
   closed dates). Specs were re-cut on 2026-11-16 — rework to the new model
   before continuing (see Loose ends).
-- **Next step:** rework slice 2 per SCRUM-9 (doc re-cut is committed in
-  `6e966a2` on this branch).
+- **Next step:** rework slice 2 per its row in `PLAN.md` (the doc re-cut
+  is already on `v1`).
 
 ## Slices
 
-Full scope per slice: [`PLAN.md`](./PLAN.md) and its Jira story.
+Full scope per slice: [`PLAN.md`](./PLAN.md).
 
-| #  | Slice                       | Jira      | State       |
-| -- | --------------------------- | --------- | ----------- |
-| 0  | Foundation                  | SCRUM-7   | Done        |
-| 1  | Admin tables                | SCRUM-8   | Done        |
-| 2  | Admin settings & about      | SCRUM-9   | In progress |
-| 3  | Booking rules               | SCRUM-10  | To do       |
-| 4  | Profiles & members          | SCRUM-11  | To do       |
-| 5  | Day view & club days        | SCRUM-12  | To do       |
-| 6  | Member booking              | SCRUM-13  | To do       |
-| 7  | My bookings & member edit   | SCRUM-14  | To do       |
-| 8  | Admin review                | SCRUM-15  | To do       |
-| 9  | Admin booking & edit        | SCRUM-16  | To do       |
-| 10 | Conflicts                   | SCRUM-17  | To do       |
-| 11 | Archive                     | SCRUM-18  | To do       |
+| #  | Slice                       | State       |
+| -- | --------------------------- | ----------- |
+| 0  | Foundation                  | Done        |
+| 1  | Admin tables                | Done        |
+| 2  | Admin settings & about      | In progress |
+| 3  | Booking rules               | To do       |
+| 4  | Profiles & members          | To do       |
+| 5  | Day view & club days        | To do       |
+| 6  | Member booking              | To do       |
+| 7  | My bookings & member edit   | To do       |
+| 8  | Admin review                | To do       |
+| 9  | Admin booking & edit        | To do       |
+| 10 | Conflicts                   | To do       |
+| 11 | Archive                     | To do       |
 
 ## Loose ends
 
@@ -45,16 +44,21 @@ Full scope per slice: [`PLAN.md`](./PLAN.md) and its Jira story.
   `ClosedDatesManager.tsx`, and their parts in `src/entities/club/`.
 - **Auth from slice 0** still assigns roles from `ADMIN_EMAILS` only;
   match-by-email, pre-created accounts and DB roles land in slice 4.
-- **SCRUM-5** (doc review) still lists opening hours / closed dates under
-  "Things to check".
+
+## Requests
+
+Bugs and wishes from the club admin, copied in from chat. Triage each into a
+slice, a "Next version ideas" entry in `PRODUCT.md`, or drop it.
+
+_None yet._
 
 ## Working a slice
 
-1. Read this file, then the slice's row in `PLAN.md` and its Jira story.
+1. Read this file, then the slice's row in `PLAN.md`.
    Read `PRODUCT.md` / `DOMAIN.md` sections only as the slice needs them.
-2. Branch `scrum-<N>-<slug>` from `v1`; move the Jira story to In Progress.
+2. Branch `slice-<N>-<slug>` from `v1`; mark the slice In progress below.
 3. Build schema → logic (test-first for rules) → UI.
 4. Done when `npm run check` passes, it works on the Vercel preview, and
-   the PR (`SCRUM-<N>: <summary>`) is merged into `v1`.
+   the PR (`Slice <N>: <summary>`) is merged into `v1`.
 5. Update docs if a decision changed; update **Now**, **Slices** and
-   **Loose ends** here; move the Jira story to Done.
+   **Loose ends** here.

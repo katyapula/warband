@@ -8,11 +8,12 @@ terms: [`GLOSSARY.md`](../GLOSSARY.md).
 
 - **Where:** this repo, long-lived `v1` branch. Fresh Next 15 scaffold; the
   first commit removes the previous version's code (history keeps it).
-- **Who / when:** solo, no fixed deadline, 2-week sprints on the Jira SCRUM
-  board. One epic, "Warband v1", one story per slice below.
+- **Who / when:** solo, no fixed deadline. Progress is tracked in
+  [`STATUS.md`](./STATUS.md); no external tracker.
 - **Databases:** Neon `dev` branch for local work and Vercel previews; Neon
   main branch for production.
-- **Branching:** one short-lived branch per slice → PR into `v1`. `v1` merges
+- **Branching:** one short-lived branch per slice (`slice-<N>-<slug>`) →
+  PR titled `Slice <N>: <summary>` into `v1`. `v1` merges
   into `main` when all slices are done.
 
 ## Definition of done (every slice)
@@ -26,10 +27,9 @@ terms: [`GLOSSARY.md`](../GLOSSARY.md).
 
 Each slice is vertical: schema, logic and UI together.
 
-Jira: epic [SCRUM-6](https://katyapula.atlassian.net/browse/SCRUM-6). Doc
-review: SCRUM-5. The slices below were re-cut on 2026-11-16 (day view,
-member profiles); Slices 0–1 were done before the re-cut; slices 0–10
-are SCRUM-7 … SCRUM-17 in order, slice 11 is SCRUM-18.
+The slices below were re-cut on 2026-11-16 (day view, member profiles);
+slices 0–1 were done before the re-cut. Slices 0–2 used `scrum-<N>-…`
+branch names from an earlier Jira board.
 
 | #  | Slice                    | Includes                                                                                     | Depends on |
 | -- | ------------------------ | -------------------------------------------------------------------------------------------- | ---------- |
