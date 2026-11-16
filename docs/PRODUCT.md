@@ -1,13 +1,10 @@
-# Warband — Product Spec (Draft, v1 rewrite)
-
-> Status: draft. Describes the rewrite. The current codebase is a previous
-> version and supported multiple clubs; v1 supports **exactly one club**.
+# Warband — Product Spec (v1)
 
 ## Purpose
 
 Warband is the booking app for a single wargaming club. Admins activate the club
-day by day and set each day's working hours. Members sign in and reserve a
-physical gaming table for a whole day or a chosen time range; admins approve
+day by day and set each day's working hours. Members sign in and book a
+physical gaming table for a time range on an active day; admins approve
 bookings, book for members and walk-ins, and manage members, tables and club
 details.
 
@@ -15,9 +12,9 @@ details.
 
 | Role    | Who                       | Can do                                                                 |
 | ------- | ------------------------- | ---------------------------------------------------------------------- |
-| Visitor | Not signed in             | See club info and booked slots on active days (no names, no actions)     |
-| Member  | Signed in with Google     | Everything a visitor can + see bookers' usernames; create, edit and cancel own bookings; edit own profile |
-| Admin   | Member with the admin role | Everything a member can + activate/deactivate days, approve/reject/edit/cancel any booking, book for anyone, manage members, tables and club settings, see the archive |
+| Visitor | Not signed in             | See club info and booked times on active days (no names, no actions)   |
+| Member  | Signed in with Google     | Everything a visitor can + see bookers' usernames; create and cancel own bookings; edit own profile |
+| Admin   | Member with the admin role | Everything a member can + activate/deactivate days, approve/reject/edit/cancel any booking, book for anyone, manage members, tables and club settings, browse past days |
 
 ## Scope (v1)
 
@@ -26,7 +23,7 @@ details.
 - One club. `/admin/settings` holds the club's name, location, description
   and the **default working hours** used when a day is activated
   (12:00–20:00 unless changed).
-- Booking window, slot step and minimum duration are app config, not
+- Booking window, time step and minimum duration are app config, not
   settings (see `DOMAIN.md`).
 
 ### Club days
@@ -37,21 +34,21 @@ details.
 - Admins can activate, change the hours of, or deactivate any day from today up to
   the end of the booking window. Past days can't be changed.
 - Changing hours or deactivating a day never changes bookings:
-  - A time-range booking now outside the day's hours is kept as is and
-    flagged **⚠ Outside working hours** (shown to admins and the booker).
-  - Bookings on a day that was deactivated are flagged and counted in
-    **Needs attention** until an admin cancels or moves each one. This is
-    the case that matters; the hours flag is a corner case.
+  - Narrowing a day's hours shows a confirmation listing the bookings that
+    fall outside the new hours. They stay as they are; the admin decides
+    whether to edit or cancel them.
+  - Bookings on a day that was deactivated are flagged **⚠ On inactive
+    day** (shown to admins and the booker) and counted in **Needs
+    attention** until an admin cancels or moves each one.
 
 ### Day view (Home)
 
 - Home is the day view, at `/?date=YYYY-MM-DD`. A one-week **day strip**
   with ‹ › arrows sits on top; dates run from today to the end of the
-  booking window. Past days are not in the strip (see Archive).
-- Marks under each day: none = inactive, green = active with free time,
-  grey = active and fully booked. Members also see a dot on days with their
-  own booking. Admins also see a pending-count badge and ⚠ on inactive days
-  that still have bookings.
+  booking window. Admins can also go back into past days, read-only.
+- Marks under each day: a dot = active. Members also see a mark on days
+  with their own booking. Admins also see a pending-count badge and ⚠ on
+  inactive days that still have bookings.
 - Without `date`, members and visitors land on the first active day from
   today; admins land on today. If no day is active, show today with a "no
   days open for booking yet" message.
@@ -61,45 +58,41 @@ details.
   What each role sees and can do:
 
 **Visitor**
-- Active day: tables with "Booked" time slots. No names, no buttons.
+- Active day: tables with their booked times, each shown as "Booked". No
+  names, no buttons.
 - Inactive day: "Sorry, Warband is chilling today, see you next time".
 
 **Member**
-- Active day: tables with bookers' usernames. Own bookings carry a
-  Pending/Approved tag and, if set, the admin comment.
+- Active day: tables with bookers' usernames; walk-in bookings show as
+  "Booked". Own bookings carry a Pending/Approved tag and, if set, the
+  admin comment.
 - **Add** on each table that has a free gap of at least the minimum
   duration → booking modal for that table and day.
-- **Edit** on own pending/approved bookings until they start → the same
-  modal, prefilled. Any member edit sets the booking back to Pending.
 - **Cancel** on own pending/approved bookings until they start, with a
-  confirmation.
+  confirmation. To change a booking, a member cancels it and books again.
 - Inactive day: the "chilling" message, plus the member's own bookings on
   that day (if the day was deactivated after they booked).
 
 **Admin**
 - Day header: **Activate** with default hours (editable) on an inactive
   day; **Edit hours** and **Deactivate** on an active day.
-- Each table: **Add** and **Clear**. Clear cancels every blocking booking
-  on that table for that day, after a confirmation listing them, with an
-  optional comment.
+- Each table: **Add**.
 - Each booking row: **Approve** / **Reject** (pending only), **Edit**,
   **Cancel** (with confirmation), and the admin comment. Flagged bookings
   show ⚠.
 - An inactive day that still has bookings shows its tables and bookings to
   admins so they can deal with them.
+- Past days are read-only, apart from the admin comment.
 
 ### Booking
 
-- A booking is for one table on one date, either:
-  - **Whole day** — the whole date (00:00–24:00). It blocks the table for
-    the entire date whatever the working hours are, so it never conflicts
-    with hours. Can only be created on an active day, on a table with no
-    other blocking bookings that day.
-  - **Time range** — a custom start and end within the day's current
-    working hours.
-- Rules (for creating and editing):
-  - Day is active (whole day and time range alike).
-  - Time range lies within the day's current hours.
+- A booking is for one table on one date, with a start and end time
+  within the day's working hours. The modal has a **Whole day** button
+  that fills in the day's opening and closing time; the result is an
+  ordinary booking.
+- Rules (for creating, and for edits that change table, date or time):
+  - Day is active.
+  - Start and end lie within the day's current hours.
   - 30-minute steps, minimum 1 hour (configurable).
   - Within the booking window (today → +1 month), for everyone.
   - Table is active.
@@ -112,34 +105,29 @@ details.
 
 ### Booking modal (admin Add / Edit)
 
-- **Booker** field with autocomplete over members (username, full name)
-  and past walk-ins (name + contact), each tagged `Member` / `Walk-in`.
-  Picking a member links the booking to them; picking a past walk-in
-  fills name and contact.
-- Typing a new name makes a **walk-in booking** (name + optional contact).
-  A **"Save this as a member"** checkbox reveals a required email field and
-  instead creates a member account by email (see Members) and books for
-  that member.
-- Whole day switch, or start/end time; note.
+- **Booker** field with autocomplete over members (username, full name).
+  Picking a member links the booking to them.
+- Typing a name that isn't a member makes a **walk-in booking** (name +
+  optional contact).
+- Start/end time (or **Whole day**); note.
 - Members' modal has no Booker field: they always book for themselves.
 
 ### Booking lifecycle
 
 ```
 PENDING ──approve──▶ APPROVED
-   │  ▲                 │
-   │  └──member edit────┤
+   │                    │
    ├──reject──▶ REJECTED │
    │                    │
    └──cancel──▶ CANCELLED ◀──cancel──┘
 ```
 
-- Members can edit or cancel their own `PENDING`/`APPROVED` bookings until
-  they start. A member edit always returns the booking to `PENDING`.
+- Members can cancel their own `PENDING`/`APPROVED` bookings until they
+  start. Members can't edit bookings.
 - Admins can approve or reject `PENDING`, and edit or cancel any
   `PENDING`/`APPROVED` booking until it starts. Admin edits keep the status.
   The member of a booking can't be changed by an edit.
-- `REJECTED` and `CANCELLED` bookings free the slot. Bookings are never
+- `REJECTED` and `CANCELLED` bookings free the table. Bookings are never
   deleted.
 - Two statuses are derived from time, not set by anyone
   ([ADR 0001](./adr/0001-derived-completed-and-expired-statuses.md)):
@@ -152,16 +140,15 @@ PENDING ──approve──▶ APPROVED
 
 ### Needs attention
 
-- Admin nav item **Needs attention (N)**: N = pending (not expired)
-  bookings + blocking bookings on inactive days. Clicking it jumps to the
-  next day that has one. There is no separate approval queue page.
+- Admin nav item **Needs attention (N)**: N = the number of bookings, from
+  today onward, that are pending (not expired) or blocking on an inactive
+  day (each booking counted once). Clicking it jumps to the next day that
+  has one. There is no separate approval queue page.
 
 ### Members
 
-- Accounts are identified by **email** only. Sign-in is Google; a member
-  account can also be created in advance by an admin (Members page or
-  "Save this as a member"). The first Google sign-in with that email
-  claims the account and its bookings.
+- Accounts are identified by **email** only. The first Google sign-in
+  creates the account; later sign-ins with the same email reuse it.
 - Profile (`/profile`, own; admins can edit anyone's):
 
   | Field         | Required | Visible to              | Notes                                   |
@@ -171,27 +158,23 @@ PENDING ──approve──▶ APPROVED
   | Full name     | No       | Member, admins          |                                         |
   | Phone         | No       | Member, admins          |                                         |
   | Telegram      | No       | Member, admins          |                                         |
-  | Date of birth | No       | Member, admins          |                                         |
-  | Notes         | No       | Member, admins          | Written by the member                   |
   | Admin notes   | No       | Admins only             | Written by admins                       |
 
 - Members don't see other members' profiles; only usernames on bookings.
 
 ### Admins and roles
 
-- `/admin/members` lists members and admins (searchable). Admins can add
-  a member by email, edit profiles (not email) and change a member's role
-  to admin or back.
+- `/admin/members` lists members and admins (searchable). Admins can edit
+  profiles (not email) and change a member's role to admin or back.
 - Emails in `ADMIN_EMAILS` are always admins and can't be demoted (a
   recovery path). Nobody can demote themselves.
-- No deleting or blocking members in v1.
+- No adding, deleting or blocking members in v1; people join by signing in.
 
-### Archive
+### Past bookings
 
-- `/admin/archive`: read-only, paginated, compact table of all bookings
-  before today — date, table, booker, time, final status, admin comment.
-  Filters: date range, table, status. It's a view; nothing is moved.
-- Members still see their own past bookings in My bookings.
+- Admins see past days by moving the day strip back; they're read-only
+  apart from the admin comment. There is no separate archive page.
+- Members see their own past bookings in My bookings.
 
 ### Tables
 
@@ -215,10 +198,9 @@ PENDING ──approve──▶ APPROVED
 | Home (day view)  | All     | Day strip + tables and bookings for the selected day; role-specific actions |
 | About            | All     | Club description and location                              |
 | Sign-in          | All     | Google sign-in                                             |
-| My bookings      | Member  | Own upcoming and past bookings with status and admin comment; edit/cancel |
+| My bookings      | Member  | Own upcoming and past bookings with status and admin comment; cancel |
 | Profile          | Member  | Edit own profile                                           |
-| Admin: members   | Admin   | List/search members, add by email, edit profiles, change roles |
-| Admin: archive   | Admin   | Past bookings, compact and filterable                      |
+| Admin: members   | Admin   | List/search members, edit profiles, change roles           |
 | Admin: tables    | Admin   | Create/edit/deactivate tables                              |
 | Admin: settings  | Admin   | Club info, default working hours                           |
 
@@ -232,15 +214,24 @@ PENDING ──approve──▶ APPROVED
 - Recurring/weekly opening schedules (days are activated one by one).
 - Notifications (email, Telegram).
 - Per-member booking limits.
-- Deleting or blocking members.
+- Adding, deleting or blocking members.
 - Migration of data from the previous version (fresh database).
 - Translations.
 
 ## Next version ideas
 
-- **Regulars and member linking** — needs brainstorming: a curated
-  "regulars" list, merging walk-ins into members, members who never sign in.
-- **Richer contact info** for walk-ins and members.
+- **Regulars and member linking** — needs brainstorming: admins creating
+  accounts by email before first sign-in ("Save this as a member" in the
+  booking modal), autocomplete over past walk-ins, merging walk-ins into
+  members, members who never sign in.
+- **Member edit** of own bookings (back to Pending).
+- **Clear a table** for a day in one action.
+- **Archive page**: paginated, filterable list of past bookings.
+- **"Outside working hours" flag** on bookings left outside narrowed hours.
+- **Whole-day bookings** stored as the full date, independent of hours.
+- **Fully booked mark** in the day strip.
+- **More profile fields** (date of birth, member notes); richer contact
+  info for walk-ins and members.
 - **Activating days in bulk** (e.g. "activate every Sat in December").
 - **Blocking / removing members.**
 - **Notifications** — Telegram is the likely first channel.

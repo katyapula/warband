@@ -14,7 +14,7 @@ _Last updated: 2026-11-16_
   closed dates). Specs were re-cut on 2026-11-16 — rework to the new model
   before continuing (see Loose ends).
 - **Next step:** rework slice 2 per its row in `PLAN.md` (the doc re-cut
-  is already on `v1`).
+  and trim are already on `v1`; merge `v1` into the slice branch first).
 
 ## Slices
 
@@ -29,11 +29,10 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 4  | Profiles & members          | To do       |
 | 5  | Day view & club days        | To do       |
 | 6  | Member booking              | To do       |
-| 7  | My bookings & member edit   | To do       |
+| 7  | My bookings                 | To do       |
 | 8  | Admin review                | To do       |
 | 9  | Admin booking & edit        | To do       |
 | 10 | Conflicts                   | To do       |
-| 11 | Archive                     | To do       |
 
 ## Loose ends
 
@@ -42,6 +41,11 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
   slice 2; never edit `20261114000000_init`.
 - **Slice 2 code to remove:** `src/features/manage-club-settings/OpeningHoursForm.tsx`,
   `ClosedDatesManager.tsx`, and their parts in `src/entities/club/`.
+- **Docs trimmed 2026-11-16:** member edit, Clear, archive page, accounts
+  created in advance, whole-day storage, the hours flag, `Booking.date` and
+  `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.
+- **Old Google API key:** the previous version committed one in
+  `src/app/constants.ts`. Confirm it was rotated in Google Cloud.
 - **Auth from slice 0** still assigns roles from `ADMIN_EMAILS` only;
   match-by-email, pre-created accounts and DB roles land in slice 4.
 

@@ -9,7 +9,7 @@ Someone using the app without signing in. Can see availability but not who booke
 _Avoid_: Guest, anonymous user
 
 **Member**:
-Anyone with an account, admins included. An account is identified by its email and may be created by an admin before the person first signs in.
+Anyone with an account, admins included. An account is identified by its email and is created on the first Google sign-in.
 _Avoid_: User, customer, player
 
 **Admin**:
@@ -60,20 +60,16 @@ _Avoid_: Guest, non-member, customer
 A booking an admin creates for a walk-in; it belongs to no member and is approved from the start.
 _Avoid_: Manual booking, phone booking, admin booking
 
-**Whole-day booking**:
-A booking of a table for the entire date (00:00–24:00), regardless of working hours.
-_Avoid_: Full-day, all-day
-
-**Time-range booking**:
-A booking with a chosen start and end time within the day's working hours.
-_Avoid_: Partial booking, slot booking
+**Whole day**:
+A shortcut in the booking modal that fills in the day's working hours. The result is an ordinary booking, not a separate kind.
+_Avoid_: Full-day, all-day, whole-day booking
 
 **Booking window**:
 How far ahead a booking may start and a day may be activated.
 _Avoid_: Horizon, lead time
 
 **Pending**:
-A booking awaiting an admin's decision — a new member booking, or one the member edited.
+A booking awaiting an admin's decision — every new member booking.
 
 **Approved**:
 A booking an admin has accepted.
@@ -103,7 +99,7 @@ A note an admin attaches to a booking (reason for rejecting, cancelling, editing
 _Avoid_: Reason, status note
 
 **Needs attention**:
-Bookings an admin must act on: pending bookings and blocking bookings on inactive days.
+Bookings an admin must act on: pending bookings and blocking bookings on inactive days, each counted once.
 _Avoid_: Queue, inbox
 
 ## Views
@@ -113,9 +109,5 @@ The home page: a strip of days on top and the selected day's tables and bookings
 _Avoid_: Calendar, grid, availability page
 
 **Day strip**:
-The week-at-a-time row of dates above the day view.
+The week-at-a-time row of dates above the day view. Admins can also move it back into past days, read-only.
 _Avoid_: Date picker, calendar bar
-
-**Archive**:
-The admin-only list of bookings before today.
-_Avoid_: History, log

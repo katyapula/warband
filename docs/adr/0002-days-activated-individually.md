@@ -1,6 +1,6 @@
 # Club days are activated one by one; schedule changes flag bookings instead of moving them
 
-The club has no fixed weekly schedule, so instead of weekly opening hours plus closed dates, every date is inactive until an admin activates it and sets its working hours (prefilled from defaults in settings). A day is a `ClubDay` row; deactivating keeps the row and its hours. Changing hours or deactivating a day never touches bookings: affected bookings are flagged at read time (*On inactive day*, *Outside working hours*) and admins resolve them by hand. A whole-day booking is stored as the full date (00:00–24:00 local), not as the day's hours, so it can never fall out of sync with them.
+The club has no fixed weekly schedule, so instead of weekly opening hours plus closed dates, every date is inactive until an admin activates it and sets its working hours (prefilled from defaults in settings). A day is a `ClubDay` row; deactivating keeps the row and its hours. Changing hours or deactivating a day never touches bookings: bookings on a deactivated day are flagged at read time (*On inactive day*), bookings left outside narrowed hours are listed in the confirmation, and admins resolve them by hand. "Whole day" is only a shortcut in the booking modal that fills in the day's working hours; the booking is stored as an ordinary time range. (An earlier draft stored whole-day bookings as 00:00–24:00, which broke "start not in the past" and expiry on the day itself.)
 
 ## Considered options
 

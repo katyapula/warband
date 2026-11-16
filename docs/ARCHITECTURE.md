@@ -1,10 +1,10 @@
-# Warband — Architecture (Draft, v1 rewrite)
+# Warband — Architecture (v1)
 
 ## Stack
 
 | Concern        | Choice                                   | Notes                                              |
 | -------------- | ---------------------------------------- | -------------------------------------------------- |
-| Framework      | Next.js 15, **App Router only**          | Drop `pages/api`; use server components + server actions |
+| Framework      | Next.js 15, **App Router only**          | Server components + server actions; no `pages/api` |
 | Language       | TypeScript (strict)                      |                                                    |
 | Database       | PostgreSQL on Neon                       | Fresh database, no migration from previous version |
 | ORM            | Prisma                                   | Migrations via `prisma migrate`                    |
@@ -27,26 +27,24 @@ src/
     profile/
     admin/
       members/
-      archive/
       tables/
       settings/
     api/auth/[...nextauth]/route.ts
   entities/            # Domain types + data access per entity
     booking/
-    club-day/
+    club/              # club settings + club days
     table/
-    club-settings/
     user/
   features/            # User actions (UI + server action)
-    manage-club-day/   # activate / deactivate / edit hours
-    booking-form/      # create + edit modal (member and admin variants)
-    cancel-booking/    # incl. admin "clear table"
+    manage-club-days/  # activate / deactivate / edit hours
+    booking-form/      # create (member + admin) and admin edit modal
+    cancel-booking/
     review-booking/    # approve / reject / admin comment
-    booker-search/     # member + walk-in autocomplete
+    booker-search/     # member autocomplete
     edit-profile/
-    manage-members/    # add by email, roles
+    manage-members/    # list, edit profiles, roles
     manage-tables/
-    edit-club-settings/
+    manage-club-settings/
   widgets/             # Composite UI (day strip, day view, header)
   shared/
     lib/               # prisma client, auth helpers, time utils
@@ -60,17 +58,18 @@ src/
 
 All validation from `DOMAIN.md` → "Business rules" lives in a pure module
 (e.g. `entities/booking/rules.ts`) taking the `ClubDay`, existing bookings,
-the actor and the request, returning a result or a list of errors. Derived statuses and flags (Expired,
-Completed, On inactive day, Outside working hours) live next to it. This is
-the primary unit-test target. Server actions call it, then persist inside a
-transaction.
+the actor and the request, returning a result or a list of errors. Derived
+statuses and the flag (Expired, Completed, On inactive day) live next to it.
+This is the primary unit-test target. Server actions call it, then persist
+inside a transaction.
 
 ### Preventing double booking
 
-Overlap check + insert run in a single transaction. Consider a Postgres
-exclusion constraint on `(tableId, tstzrange(startsAt, endsAt))` for
-`status IN ('PENDING','APPROVED')` as a hard guarantee (requires a raw SQL
-migration with `btree_gist`).
+Create and edit run in one transaction: lock the table's row
+(`SELECT … FROM "Table" WHERE id = $1 FOR UPDATE` via `$queryRaw`), load
+its blocking bookings for the day, run the rules, write. Bookings for the
+same table are serialized; different tables don't wait on each other. No
+exclusion constraint (see `DOMAIN.md` → "Preventing double booking").
 
 ### Time handling
 
@@ -78,9 +77,9 @@ migration with `btree_gist`).
 - Interpret club days, working hours and the booking window in
   `CLUB_TIMEZONE` (`Europe/Kyiv`). Use the IANA name, not a fixed `+02:00`
   offset, because Ukraine switches to UTC+3 in summer.
-- Keep timezone conversion in one helper in `shared/lib/time`.
-- A whole-day booking is local 00:00 → next local 00:00, converted to UTC
-  (23 or 25 hours on DST change days — that's fine).
+- Keep timezone conversion in one helper in `shared/lib/time`, including
+  "club-local date of a booking" and "UTC range of a club-local date"
+  (used by day queries: `startsAt` in `[local 00:00, next local 00:00)`).
 
 ### Authorization
 
@@ -88,23 +87,24 @@ migration with `btree_gist`).
 - Admin routes are protected in middleware and again in the action (defense in depth).
 - Session exposes `user.id` and `user.role` (NextAuth callbacks). Role is
   read from the DB so promotions take effect without code changes.
-- Sign-in callback: find user by email → claim pre-created account or
-  create one; apply `ADMIN_EMAILS`.
-- Members may only edit/cancel bookings where `userId = session.user.id`.
+- Sign-in callback: find user by email or create one; apply `ADMIN_EMAILS`.
+- Members may only cancel bookings where `userId = session.user.id`.
 
 ### Data visibility
 
 - Day query for visitors returns only table + time ranges.
-- Signed-in members also get usernames; status and admin comment only on
+- Signed-in members also get usernames of member bookings; walk-in
+  bookings come back as time ranges only. Status and admin comment only on
   their own bookings.
-- Walk-in contact, profiles (except username) and admin notes are only
-  returned to admins (and profiles to their owner). Shape this in the
+- Walk-in name and contact, profiles (except username) and admin notes are
+  only returned to admins (and profiles to their owner). Shape this in the
   query layer, not the UI.
 
 ## Environment variables
 
 ```
 DATABASE_URL=
+DATABASE_URL_UNPOOLED=
 NEXTAUTH_URL=
 NEXTAUTH_SECRET=
 GOOGLE_CLIENT_ID=
@@ -116,14 +116,4 @@ SLOT_STEP_MINUTES=30
 MIN_BOOKING_MINUTES=60
 ```
 
-No secrets in source code. The previous version committed a Google API key in
-`src/app/constants.ts`; that key must be rotated and the file removed.
-
-## To remove from the previous version
-
-- `pages/api/*` (clubs, tables, prisma) → server actions / server components
-- `Club` model, club tabs (`TabsComponent`)
-- `/dashboard`, `/users` (mockapi), `/signup`, `CreateUser.ts`, `useCreateUser`
-- `src/app/constants.ts` (Google Sheets key, mockapi URL)
-- `src/app/actions.ts` raw Neon query stub
-- Leftover `console.log`s
+No secrets in source code.
