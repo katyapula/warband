@@ -8,16 +8,19 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 8 + 9 in review, one PR from `slice-8-9-admin-review-booking`.
-- **Branch:** `slice-8-9-admin-review-booking` (from `v1`).
-- **State:** slices 0–7 merged (#10 also added the admin member-profile
-  modal on usernames). Slices 8–9 add, on the admin day view: Approve /
-  Edit / Cancel / Comment on each booking (Reject merged into Cancel), Add on each table
-  (booker autocomplete or walk-in, approved at once), pending badges in
-  the strip and **Needs attention (N)** in the nav.
-- **Next step:** check the PR's Vercel preview as an admin and as a
-  member, merge, then slice 10 (conflicts). Still unchecked on the `v1`
-  preview: `/admin/settings` (slice 2) and the slice 5 admin day controls.
+- **Current slice:** 10 (conflicts) in review, PR from `slice-10-conflicts`.
+  It is the last v1 slice.
+- **Branch:** `slice-10-conflicts` (from `v1`).
+- **State:** slices 0–9 merged; Reject was merged into Cancel (one
+  Cancelled status). Slice 10 shows inactive days that still have
+  bookings to admins (with ⚠ in the strip) and members' own bookings on
+  them, tags those bookings ⚠ On inactive day, and confirms Edit hours
+  with the bookings the new hours leave outside.
+- **Next step:** check the PR's Vercel preview, merge, then release v1
+  (`PLAN.md` → Setup): optionally squash the migrations into one init
+  migration and reset Neon `dev`, then merge `v1` into `main`. Still
+  unchecked on the `v1` preview: `/admin/settings` (slice 2) and the slice
+  5 admin day controls.
 
 ## Slices
 
@@ -33,9 +36,9 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 5  | Day view & club days        | Done        |
 | 6  | Member booking              | Done        |
 | 7  | My bookings                 | Done        |
-| 8  | Admin review                | In review   |
-| 9  | Admin booking & edit        | In review   |
-| 10 | Conflicts                   | To do       |
+| 8  | Admin review                | Done        |
+| 9  | Admin booking & edit        | Done        |
+| 10 | Conflicts                   | In review   |
 
 ## Loose ends
 
@@ -50,9 +53,9 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
   members grow into the thousands.
 - **⚠ On inactive day:** slice 7 shows it in My bookings; the day view
   doesn't yet show members their bookings on inactive days (slice 10).
-- **Slice 5 left for later slices:** inactive days with bookings shown to
-  admins and members' own bookings on inactive days (slice 10); the
-  Edit-hours confirmation listing bookings outside new hours (slice 10).
+- **Bookings on inactive tables** don't show on the day view (active or
+  inactive day); they still count in Needs attention. Decide in v2 whether
+  deactivating a table should warn like deactivating a day.
 - **Docs trimmed 2026-11-16:** member edit, Clear, archive page, accounts
   created in advance, whole-day storage, the hours flag, `Booking.date` and
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.

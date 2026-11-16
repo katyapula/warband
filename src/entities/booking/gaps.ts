@@ -21,7 +21,7 @@ export type GapInput = {
 };
 
 /** Minutes since local midnight of `date` for an instant, clamped to [0, 1440]. */
-function minutesOnDate(instant: Date, date: string, timeZone: string): number {
+export function minutesOnDate(instant: Date, date: string, timeZone: string): number {
   const day = dateInZone(timeZone, instant);
   if (day < date) return 0;
   if (day > date) return 1440;

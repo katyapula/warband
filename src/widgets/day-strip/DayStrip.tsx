@@ -46,6 +46,7 @@ export function DayStrip({
   activeDates,
   ownDates,
   pendingCounts,
+  warnDates,
   prev,
   next,
 }: {
@@ -58,6 +59,8 @@ export function DayStrip({
   ownDates: Set<string>;
   /** Admins only: pending (not expired) bookings per date. */
   pendingCounts: Map<string, number>;
+  /** Admins only: inactive days that still have bookings (⚠). */
+  warnDates: Set<string>;
   prev: string | null;
   next: string | null;
 }) {
@@ -105,6 +108,7 @@ export function DayStrip({
             const hasOwn = ownDates.has(date);
             const markColor = isSelected ? "#fff" : ACCENT;
             const pending = pendingCounts.get(date) ?? 0;
+            const warn = warnDates.has(date);
             const viewable = isViewable(date);
             const cell: CSSProperties = {
               position: "relative",
@@ -145,6 +149,11 @@ export function DayStrip({
                     {pending}
                   </span>
                 )}
+                {warn && (
+                  <span aria-hidden style={{ position: "absolute", top: 1, left: 3, fontSize: 12, lineHeight: 1 }}>
+                    ⚠
+                  </span>
+                )}
                 <span style={{ fontSize: 12 }}>{p.weekday}</span>
                 <span style={{ fontSize: 18, fontWeight: 600 }}>{p.day}</span>
                 <span aria-hidden style={{ display: "flex", gap: 3, height: 6 }}>
@@ -170,7 +179,7 @@ export function DayStrip({
                 </span>
               </>
             );
-            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}${pending ? `, ${pending} pending` : ""}`;
+            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}${pending ? `, ${pending} pending` : ""}${warn ? ", inactive with bookings" : ""}`;
             return (
               <li key={date} style={{ flex: 1, minWidth: 0 }}>
                 {viewable ? (
