@@ -8,17 +8,16 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 6 + 7 in review, one PR from `slice-6-member-booking`.
-- **Branch:** `slice-6-member-booking` (from `v1`).
-- **State:** members book from the day view (Add on tables with a free gap,
-  modal offers only free times, Whole day, note; starts Pending), cancel
-  their own bookings, see Pending/Approved and admin comments on them, and
-  get a ring mark in the strip on days they booked. `/my-bookings` lists
-  Upcoming and Past with derived statuses, ⚠ On inactive day, Cancel.
-  Migration `20261116200000_booking_columns` is applied to Neon `dev`.
-- **Next step:** check the PR's Vercel preview as a member, merge, then
-  slice 8 (admin review). Still unchecked on the `v1` preview:
-  `/admin/settings` (slice 2) and the slice 5 admin day controls.
+- **Current slice:** 8 + 9 in review, one PR from `slice-8-9-admin-review-booking`.
+- **Branch:** `slice-8-9-admin-review-booking` (from `v1`).
+- **State:** slices 0–7 merged (#10 also added the admin member-profile
+  modal on usernames). Slices 8–9 add, on the admin day view: Approve /
+  Reject / Edit / Cancel / Comment on each booking, Add on each table
+  (booker autocomplete or walk-in, approved at once), pending badges in
+  the strip and **Needs attention (N)** in the nav.
+- **Next step:** check the PR's Vercel preview as an admin and as a
+  member, merge, then slice 10 (conflicts). Still unchecked on the `v1`
+  preview: `/admin/settings` (slice 2) and the slice 5 admin day controls.
 
 ## Slices
 
@@ -32,10 +31,10 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 3  | Booking rules               | Done        |
 | 4  | Profiles & members          | Done        |
 | 5  | Day view & club days        | Done        |
-| 6  | Member booking              | In review   |
-| 7  | My bookings                 | In review   |
-| 8  | Admin review                | To do       |
-| 9  | Admin booking & edit        | To do       |
+| 6  | Member booking              | Done        |
+| 7  | My bookings                 | Done        |
+| 8  | Admin review                | In review   |
+| 9  | Admin booking & edit        | In review   |
 | 10 | Conflicts                   | To do       |
 
 ## Loose ends
@@ -43,10 +42,12 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 - **Blocking in queries:** `blockingWhere(now)` in
   `entities/booking/repository.ts` is the Prisma twin of `isBlocking`;
   every query for blocking bookings uses it.
-- **Admin Add is slice 9:** in slices 6–7 only members see Add on the day
-  view; `createOwnBooking` already makes an admin's own booking Approved.
-- **Admin Cancel is slice 8:** the day view shows Cancel only on a
-  member's own bookings; `cancelBookingAction` already allows admins.
+- **Every booking write** goes through `lockAndCheck` in
+  `entities/booking/repository.ts` (locks the table row, loads the day
+  and blocking bookings). New writes that move a booking must use it.
+- **Admin booker list** is loaded whole into the admin day view
+  (`listBookerOptions`); fine for one club, switch to a search action if
+  members grow into the thousands.
 - **⚠ On inactive day:** slice 7 shows it in My bookings; the day view
   doesn't yet show members their bookings on inactive days (slice 10).
 - **Slice 5 left for later slices:** inactive days with bookings shown to
