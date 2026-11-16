@@ -14,8 +14,8 @@ _Last updated: 2026-11-16_
 - **State:** in-progress code builds the *old* model (weekly opening hours,
   closed dates). Specs were re-cut on 2026-11-16 — rework to the new model
   before continuing (see Loose ends).
-- **Next step:** commit the doc updates (re-cut specs, ADR 0002, this file),
-  then rework slice 2 per SCRUM-9.
+- **Next step:** rework slice 2 per SCRUM-9 (doc re-cut is committed in
+  `6e966a2` on this branch).
 
 ## Slices
 
