@@ -1,9 +1,13 @@
-// Placeholder until slice 5 (day view).
-export default function HomePage() {
-  return (
-    <main>
-      <h1>Warband</h1>
-      <p>Table booking is coming soon.</p>
-    </main>
-  );
+import { DayView } from "@/widgets/day-view/DayView";
+
+// Reads the session and "today" on every request.
+export const dynamic = "force-dynamic";
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { date } = await searchParams;
+  return <DayView dateParam={date} />;
 }

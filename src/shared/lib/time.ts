@@ -80,3 +80,27 @@ export function utcRangeOfDate(date: string, timeZone: string): { start: Date; e
     end: localTimeToUtc(date, "24:00", timeZone),
   };
 }
+
+/** "HH:mm" of an instant in the zone (00:00–23:59). */
+function timeInZone(instant: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(instant);
+}
+
+/** "12:00–14:30" in the zone; an end at the next local midnight reads "24:00". */
+export function timeRangeInZone(startsAt: Date, endsAt: Date, timeZone: string): string {
+  const crossesMidnight = dateInZone(timeZone, endsAt) > dateInZone(timeZone, startsAt);
+  const end = crossesMidnight && timeInZone(endsAt, timeZone) === "00:00" ? "24:00" : timeInZone(endsAt, timeZone);
+  return `${timeInZone(startsAt, timeZone)}–${end}`;
+}
+
+/** Formats a "YYYY-MM-DD" calendar date (no time zone shift), e.g. { weekday: "long" }. */
+export function formatDate(date: string, options: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat("en-GB", { ...options, timeZone: "UTC" }).format(
+    new Date(`${date}T12:00:00Z`),
+  );
+}

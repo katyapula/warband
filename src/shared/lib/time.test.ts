@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addDays, dateInZone, fromMinutes, localTimeToUtc, toMinutes, utcRangeOfDate } from "./time";
+import {
+  addDays,
+  dateInZone,
+  fromMinutes,
+  localTimeToUtc,
+  timeRangeInZone,
+  toMinutes,
+  utcRangeOfDate,
+} from "./time";
 
 const KYIV = "Europe/Kyiv";
 
@@ -75,5 +83,19 @@ describe("toMinutes / fromMinutes", () => {
   it("writes minutes back as HH:mm", () => {
     expect(fromMinutes(570)).toBe("09:30");
     expect(fromMinutes(1440)).toBe("24:00");
+  });
+});
+
+describe("timeRangeInZone", () => {
+  it("shows club-local times", () => {
+    expect(
+      timeRangeInZone(new Date("2026-11-20T10:00:00Z"), new Date("2026-11-20T12:30:00Z"), KYIV),
+    ).toBe("12:00–14:30");
+  });
+
+  it("shows an end at the next local midnight as 24:00", () => {
+    expect(
+      timeRangeInZone(new Date("2026-11-20T20:00:00Z"), new Date("2026-11-20T22:00:00Z"), KYIV),
+    ).toBe("22:00–24:00");
   });
 });

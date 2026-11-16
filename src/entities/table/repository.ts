@@ -35,3 +35,12 @@ export async function setTableActive(id: string, isActive: boolean): Promise<Tab
   const { count } = await prisma.table.updateMany({ where: { id }, data: { isActive } });
   return count ? prisma.table.findUnique({ where: { id }, select }) : null;
 }
+
+/** Tables shown on the day view: active ones, by name. */
+export function listActiveTables(): Promise<{ id: string; name: string; description: string | null }[]> {
+  return prisma.table.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, description: true },
+    orderBy: { name: "asc" },
+  });
+}
