@@ -1,27 +1,13 @@
-"use client";
-import { DatePicker, DatePickerProps } from "antd";
-import dayjs from "dayjs";
-import TabsComponent from "./components/table/TabsComponent";
-import { useState } from "react";
-import { dayString } from "@entities/types";
+import { DayView } from "@/widgets/day-view/DayView";
 
-export default function Page() {
-  const [, setDate] = useState<dayString>();
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    setDate(dateString);
-  };
+// Reads the session and "today" on every request.
+export const dynamic = "force-dynamic";
 
-  return (
-    <div>
-      <div style={{ margin: "10px 0" }}>
-        <TabsComponent />
-        <DatePicker
-          onChange={onChange}
-          minDate={dayjs()}
-          maxDate={dayjs().add(1, "month")}
-          defaultValue={dayjs()}
-        />
-      </div>
-    </div>
-  );
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { date } = await searchParams;
+  return <DayView dateParam={date} />;
 }

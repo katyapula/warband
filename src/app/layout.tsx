@@ -1,23 +1,21 @@
-"use client";
-import { ReactNode } from "react";
-import { Layout } from "antd";
-import { Content } from "antd/es/layout/layout";
-import { StyleProvider } from "@ant-design/cssinjs";
-import { SessionProvider } from "next-auth/react";
-import HeaderComponent from "./components/header/HeaderComponent";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { AppShell } from "@/shared/ui/AppShell";
+import { Header } from "@/widgets/header/Header";
+
+export const metadata: Metadata = {
+  title: "Warband",
+  description: "Book a gaming table at the club",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <SessionProvider>
-          <StyleProvider hashPriority="high">
-            <Layout style={{ background: 0 }}>
-              <HeaderComponent />
-              <Content>{children}</Content>
-            </Layout>
-          </StyleProvider>
-        </SessionProvider>
+      <body style={{ margin: 0 }}>
+        <AntdRegistry>
+          <AppShell header={<Header />}>{children}</AppShell>
+        </AntdRegistry>
       </body>
     </html>
   );
