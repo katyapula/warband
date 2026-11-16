@@ -48,5 +48,6 @@ export async function createBookingAction(input: unknown): Promise<CreateBooking
   if (!result.ok) return { ok: false, errors: result.errors.map((e) => bookingErrorMessage(e, config)) };
 
   revalidatePath("/");
+  revalidatePath("/my-bookings");
   return { ok: true };
 }

@@ -22,6 +22,7 @@ export async function Header() {
           <Image src="/logo.jpg" width={56} height={56} alt="Warband" priority />
         </Link>
         <Link href="/about">About</Link>
+        {member && <Link href="/my-bookings">My bookings</Link>}
         {isAdmin(member?.role) && <Link href="/admin">Admin</Link>}
       </nav>
       <AuthButton member={member ? { username: member.username, image: member.image } : null} />

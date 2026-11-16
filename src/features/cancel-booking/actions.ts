@@ -33,5 +33,6 @@ export async function cancelBookingAction(input: { id?: unknown }): Promise<Canc
     };
   }
   revalidatePath("/");
+  revalidatePath("/my-bookings");
   return { ok: true };
 }

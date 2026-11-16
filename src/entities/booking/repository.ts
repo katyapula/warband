@@ -1,11 +1,12 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/shared/lib/prisma";
-import { clubDayKey } from "@/entities/club/repository";
+import { clubDayKey, listClubDays } from "@/entities/club/repository";
 import { dateInZone, isIsoDate, utcRangeOfDate } from "@/shared/lib/time";
 import { shapeDayBookings, type DayBooking, type Viewer } from "./dayView";
+import { shapeMyBookings, type MyBooking } from "./myBookings";
 import { checkBooking, type BookingConfig, type BookingError, type BookingRequest } from "./rules";
-import { canCancel, initialStatus, type Actor, type TimedBooking } from "./status";
+import { canCancel, initialStatus, type Actor, type DayState, type TimedBooking } from "./status";
 
 /**
  * `isBlocking` (./status.ts) as a Prisma filter: approved, or pending and
@@ -162,4 +163,42 @@ export async function cancelBooking(p: { id: string; actor: Actor; now: Date }):
     data: { status: "CANCELLED" },
   });
   return count ? { ok: true } : { ok: false, error: "NOT_ALLOWED" };
+}
+
+/** The member's own bookings (any status, any date), shaped for My bookings. */
+export async function listMyBookings(p: {
+  actor: Actor;
+  now: Date;
+  timeZone: string;
+}): Promise<{ upcoming: MyBooking[]; past: MyBooking[] }> {
+  const rows = await prisma.booking.findMany({
+    where: { userId: p.actor.id },
+    select: {
+      id: true,
+      startsAt: true,
+      endsAt: true,
+      status: true,
+      note: true,
+      adminComment: true,
+      userId: true,
+      table: { select: { name: true } },
+    },
+  });
+  // Club days only matter for the flag on upcoming bookings.
+  const upcomingDates = rows
+    .filter((r) => r.endsAt > p.now)
+    .map((r) => dateInZone(p.timeZone, r.startsAt))
+    .sort();
+  const days = new Map<string, DayState>();
+  if (upcomingDates.length) {
+    const clubDays = await listClubDays(upcomingDates[0]!, upcomingDates.at(-1)!);
+    for (const d of clubDays) days.set(d.date, { isActive: d.isActive });
+  }
+  return shapeMyBookings(
+    rows.map(({ table, ...b }) => ({ ...b, tableName: table.name })),
+    days,
+    p.actor,
+    p.now,
+    p.timeZone,
+  );
 }

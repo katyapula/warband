@@ -8,4 +8,4 @@ export default withAuth({
   pages: { signIn: "/signin" },
 });
 
-export const config = { matcher: ["/admin/:path*", "/profile"] };
+export const config = { matcher: ["/admin/:path*", "/profile", "/my-bookings"] };
