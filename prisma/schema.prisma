@@ -88,6 +88,5 @@ enum Role {
 enum BookingStatus {
   PENDING
   APPROVED
-  REJECTED
   CANCELLED
 }

@@ -29,7 +29,7 @@ export type DayTableBooking = {
   walkInContact: string | null;
   adminComment: string | null;
   canCancel: boolean;
-  canReview: boolean;
+  canApprove: boolean;
   canEdit: boolean;
 };
 

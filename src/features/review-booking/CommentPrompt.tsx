@@ -5,8 +5,8 @@ import { useState, useTransition } from "react";
 import { ADMIN_COMMENT_MAX } from "@/entities/booking/adminInput";
 
 /**
- * A small modal asking for the admin comment before an action (reject,
- * cancel) or on its own. The comment is visible to the booker and admins.
+ * A small modal asking for the admin comment before an action (cancel) or
+ * on its own. The comment is visible to the booker and admins.
  */
 export function CommentPrompt({
   title,

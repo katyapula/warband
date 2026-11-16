@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { adminCommentSchema } from "@/entities/booking/adminInput";
-import { reviewBooking, setAdminComment } from "@/entities/booking/repository";
+import { approveBooking, setAdminComment } from "@/entities/booking/repository";
 import { AuthError, requireAdmin } from "@/shared/lib/auth/session";
 
 export type ReviewResult = { ok: true } | { ok: false; error: string };
@@ -22,26 +22,13 @@ function comment(raw: unknown): { ok: true; value: string | null | undefined } |
   return parsed.success ? { ok: true, value: parsed.data } : { ok: false, error: parsed.error.issues[0]!.message };
 }
 
-/** Approve or reject a pending booking that hasn't expired; optionally set the admin comment. */
-export async function reviewBookingAction(input: {
-  id?: unknown;
-  decision?: unknown;
-  adminComment?: unknown;
-}): Promise<ReviewResult> {
+/** Approves a pending booking that hasn't expired. (Declining it is a cancel.) */
+export async function approveBookingAction(input: { id?: unknown }): Promise<ReviewResult> {
   const admin = await guard();
   if ("ok" in admin) return admin;
-  if (typeof input?.id !== "string" || (input.decision !== "APPROVED" && input.decision !== "REJECTED"))
-    return { ok: false, error: "Booking not found." };
-  const c = comment(input.adminComment);
-  if (!c.ok) return c;
+  if (typeof input?.id !== "string") return { ok: false, error: "Booking not found." };
 
-  const result = await reviewBooking({
-    id: input.id,
-    decision: input.decision,
-    adminComment: c.value,
-    actor: { id: admin.id, isAdmin: true },
-    now: new Date(),
-  });
+  const result = await approveBooking({ id: input.id, actor: { id: admin.id, isAdmin: true }, now: new Date() });
   if (!result.ok)
     return {
       ok: false,

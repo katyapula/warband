@@ -4,7 +4,7 @@
 import { dateInZone } from "@/shared/lib/time";
 
 /** Matches the Prisma `BookingStatus` enum. */
-export type StoredStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+export type StoredStatus = "PENDING" | "APPROVED" | "CANCELLED";
 /** What the UI shows: stored statuses plus the two derived from time. */
 export type ShownStatus = StoredStatus | "EXPIRED" | "COMPLETED";
 
@@ -59,7 +59,7 @@ export function canEdit(b: TimedBooking, actor: Actor, now: Date): boolean {
   return actor.isAdmin && isOpen(b) && !hasStarted(b, now);
 }
 
-/** Approve or reject: admins only, pending and not expired. */
-export function canReview(b: TimedBooking, actor: Actor, now: Date): boolean {
+/** Approve: admins only, pending and not expired. (Declining is Cancel.) */
+export function canApprove(b: TimedBooking, actor: Actor, now: Date): boolean {
   return actor.isAdmin && b.status === "PENDING" && !isExpired(b, now);
 }

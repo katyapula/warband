@@ -11,8 +11,8 @@ import { freeGaps, type Gap } from "./gaps";
 import { checkBooking, checkEdit, type BookingConfig, type BookingRequest } from "./rules";
 import {
   canCancel,
+  canApprove,
   canEdit,
-  canReview,
   initialStatus,
   type Actor,
   type DayState,
@@ -253,26 +253,17 @@ export async function cancelBooking(p: {
   return count ? { ok: true } : { ok: false, errors: ["NOT_ALLOWED"] };
 }
 
-/** Approve or reject a pending booking that hasn't expired, with an optional admin comment. */
-export async function reviewBooking(p: {
-  id: string;
-  decision: "APPROVED" | "REJECTED";
-  adminComment?: string | null;
-  actor: Actor;
-  now: Date;
-}): Promise<WriteResult> {
+/** Approves a pending booking that hasn't expired. Declining one is a cancel. */
+export async function approveBooking(p: { id: string; actor: Actor; now: Date }): Promise<WriteResult> {
   const booking = await prisma.booking.findUnique({
     where: { id: p.id },
     select: { status: true, startsAt: true, endsAt: true },
   });
   if (!booking) return { ok: false, errors: ["NOT_FOUND"] };
-  if (!canReview(booking, p.actor, p.now)) return { ok: false, errors: ["NOT_ALLOWED"] };
+  if (!canApprove(booking, p.actor, p.now)) return { ok: false, errors: ["NOT_ALLOWED"] };
   const { count } = await prisma.booking.updateMany({
     where: { id: p.id, status: "PENDING", startsAt: { gt: p.now } },
-    data: {
-      status: p.decision,
-      ...(p.adminComment !== undefined ? { adminComment: p.adminComment } : {}),
-    },
+    data: { status: "APPROVED" },
   });
   return count ? { ok: true } : { ok: false, errors: ["NOT_ALLOWED"] };
 }

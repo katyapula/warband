@@ -1,6 +1,6 @@
 # Completed and Expired are derived, not stored
 
-Bookings store only four statuses: `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED`. **Completed** (approved, end time passed) and **Expired** (pending, start time passed) are computed from the current time whenever bookings are read. We host on Vercel with no long-running worker, and a scheduled job that flips statuses could lag or fail, leaving bookings in a wrong state. Deriving them means they are always correct and need no infrastructure.
+Bookings store only three statuses: `PENDING`, `APPROVED`, `CANCELLED` (a fourth, `REJECTED`, was merged into `CANCELLED` on 2026-11-16). **Completed** (approved, end time passed) and **Expired** (pending, start time passed) are computed from the current time whenever bookings are read. We host on Vercel with no long-running worker, and a scheduled job that flips statuses could lag or fail, leaving bookings in a wrong state. Deriving them means they are always correct and need no infrastructure.
 
 ## Consequences
 

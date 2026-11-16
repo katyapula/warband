@@ -70,7 +70,7 @@ describe("checkBooking", () => {
 
   it("ignores bookings that don't block", () => {
     const overlapping = { ...evening, startsAt: new Date("2026-11-21T13:00:00Z") };
-    for (const status of ["REJECTED", "CANCELLED"] as const) {
+    for (const status of ["CANCELLED"] as const) {
       expect(checkBooking(request, ctx({ existing: [{ ...overlapping, status }] })).ok).toBe(true);
     }
     // Pending that already expired: started before now.

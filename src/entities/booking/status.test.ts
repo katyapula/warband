@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canCancel,
   canEdit,
-  canReview,
+  canApprove,
   displayStatus,
   initialStatus,
   isBlocking,
@@ -33,7 +33,6 @@ describe("displayStatus", () => {
     ["PENDING", during, "EXPIRED"],
     ["APPROVED", during, "APPROVED"],
     ["APPROVED", after, "COMPLETED"],
-    ["REJECTED", after, "REJECTED"],
     ["CANCELLED", after, "CANCELLED"],
   ] as const)("%s at %s → %s", (status, now, shown) => {
     expect(displayStatus(booking(status), now)).toBe(shown);
@@ -45,7 +44,6 @@ describe("isBlocking", () => {
     ["PENDING", before, true],
     ["PENDING", during, false], // expired
     ["APPROVED", during, true],
-    ["REJECTED", before, false],
     ["CANCELLED", before, false],
   ] as const)("%s at %s → %s", (status, now, blocking) => {
     expect(isBlocking(booking(status), now)).toBe(blocking);
@@ -107,7 +105,6 @@ describe("canCancel", () => {
     expect(canCancel(booking("APPROVED", null), member, before)).toBe(false);
     expect(canCancel(booking("APPROVED", null), admin, before)).toBe(true);
     expect(canCancel(booking("APPROVED"), admin, during)).toBe(false);
-    expect(canCancel(booking("REJECTED"), admin, before)).toBe(false);
     expect(canCancel(booking("CANCELLED"), member, before)).toBe(false);
   });
 });
@@ -122,11 +119,11 @@ describe("canEdit", () => {
   });
 });
 
-describe("canReview", () => {
+describe("canApprove", () => {
   it("is admin-only, for pending bookings that haven't expired", () => {
-    expect(canReview(booking("PENDING"), admin, before)).toBe(true);
-    expect(canReview(booking("PENDING"), admin, during)).toBe(false);
-    expect(canReview(booking("APPROVED"), admin, before)).toBe(false);
-    expect(canReview(booking("PENDING"), member, before)).toBe(false);
+    expect(canApprove(booking("PENDING"), admin, before)).toBe(true);
+    expect(canApprove(booking("PENDING"), admin, during)).toBe(false);
+    expect(canApprove(booking("APPROVED"), admin, before)).toBe(false);
+    expect(canApprove(booking("PENDING"), member, before)).toBe(false);
   });
 });

@@ -110,7 +110,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
           walkInContact: b.walkInContact,
           adminComment: b.adminComment,
           canCancel: b.canCancel,
-          canReview: b.canReview,
+          canApprove: b.canApprove,
           canEdit: b.canEdit,
         })),
     }));

@@ -42,7 +42,7 @@ branch names from an earlier Jira board.
 | 5  | Day view & club days     | Home day strip (week, ‹ ›, window, default landing day, `?date=`, admins can go into past days read-only); active-day dots; per-role table list (visitor: Booked; member: usernames, walk-ins as Booked); admin Activate / Edit hours / Deactivate; "chilling" message | 1, 2, 3    |
 | 6  | Member booking           | Migration: booking columns (`walkInContact`, `adminComment`, drop old columns); Add modal (start/end or Whole day, note) on tables with a free gap; locked transaction for the overlap check; starts Pending; own-booking tags and day marks; Cancel with confirmation | 5          |
 | 7  | My bookings              | Upcoming/past list with derived statuses, flag and admin comment; Cancel from the list        | 6          |
-| 8  | Admin review             | Booking rows in admin day view: Approve/Reject, Cancel, admin comment (also on past days); pending badges in strip; Needs attention (N) nav | 6          |
+| 8  | Admin review             | Booking rows in admin day view: Approve, Cancel (also declines), admin comment (also on past days); pending badges in strip; Needs attention (N) nav | 6          |
 | 9  | Admin booking & edit     | Admin Add/Edit modal: booker autocomplete over members, walk-in name/contact; approved immediately; admin edit keeps status | 4, 8       |
 | 10 | Conflicts                | ⚠ On inactive day on day view and My bookings; inactive days with bookings shown to admins and counted in Needs attention; ⚠ in strip; Edit hours confirmation listing bookings outside the new hours | 7, 8 |
 

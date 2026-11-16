@@ -12,7 +12,7 @@ _Last updated: 2026-11-16_
 - **Branch:** `slice-8-9-admin-review-booking` (from `v1`).
 - **State:** slices 0–7 merged (#10 also added the admin member-profile
   modal on usernames). Slices 8–9 add, on the admin day view: Approve /
-  Reject / Edit / Cancel / Comment on each booking, Add on each table
+  Edit / Cancel / Comment on each booking (Reject merged into Cancel), Add on each table
   (booker autocomplete or walk-in, approved at once), pending badges in
   the strip and **Needs attention (N)** in the nav.
 - **Next step:** check the PR's Vercel preview as an admin and as a
