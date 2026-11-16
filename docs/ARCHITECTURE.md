@@ -8,7 +8,7 @@
 | Language       | TypeScript (strict)                      |                                                    |
 | Database       | PostgreSQL on Neon                       | Fresh database, no migration from previous version |
 | ORM            | Prisma                                   | Migrations via `prisma migrate`                    |
-| Auth           | NextAuth (Auth.js), Google provider only | Role assigned on sign-in from `ADMIN_EMAILS`       |
+| Auth           | NextAuth (Auth.js), Google provider only | Users matched by email; role stored in DB, `ADMIN_EMAILS` forced to admin on sign-in |
 | UI             | antd                                     | dayjs for dates (antd dependency)                  |
 | Client state   | Server state via server components/actions; add zustand only if real client state appears | SWR likely unnecessary |
 | Hosting        | Vercel                                   |                                                    |
@@ -20,27 +20,34 @@
 ```
 src/
   app/                 # Next.js routes only (thin)
-    page.tsx           # Home: club info + availability grid
+    page.tsx           # Home: day view (?date=YYYY-MM-DD)
+    about/
     signin/
-    book/
     my-bookings/
+    profile/
     admin/
-      bookings/
+      members/
+      archive/
       tables/
       settings/
     api/auth/[...nextauth]/route.ts
   entities/            # Domain types + data access per entity
     booking/
+    club-day/
     table/
     club-settings/
     user/
   features/            # User actions (UI + server action)
-    create-booking/
-    cancel-booking/
-    review-booking/    # approve / reject
+    manage-club-day/   # activate / deactivate / edit hours
+    booking-form/      # create + edit modal (member and admin variants)
+    cancel-booking/    # incl. admin "clear table"
+    review-booking/    # approve / reject / admin comment
+    booker-search/     # member + walk-in autocomplete
+    edit-profile/
+    manage-members/    # add by email, roles
     manage-tables/
     edit-club-settings/
-  widgets/             # Composite UI (availability grid, header)
+  widgets/             # Composite UI (day strip, day view, header)
   shared/
     lib/               # prisma client, auth helpers, time utils
     config/            # env + app config (timezone, window, step)
@@ -52,9 +59,10 @@ src/
 ### Booking rules as pure functions
 
 All validation from `DOMAIN.md` → "Business rules" lives in a pure module
-(e.g. `entities/booking/rules.ts`) taking settings, closed dates, existing
-bookings and the request, returning a result or a list of errors. This is the
-primary unit-test target. Server actions call it, then persist inside a
+(e.g. `entities/booking/rules.ts`) taking the `ClubDay`, existing bookings,
+the actor and the request, returning a result or a list of errors. Derived statuses and flags (Expired,
+Completed, On inactive day, Outside working hours) live next to it. This is
+the primary unit-test target. Server actions call it, then persist inside a
 transaction.
 
 ### Preventing double booking
@@ -67,21 +75,31 @@ migration with `btree_gist`).
 ### Time handling
 
 - Store `startsAt`/`endsAt` in UTC.
-- Interpret opening hours, closed dates and the booking window in
+- Interpret club days, working hours and the booking window in
   `CLUB_TIMEZONE` (`Europe/Kyiv`). Use the IANA name, not a fixed `+02:00`
   offset, because Ukraine switches to UTC+3 in summer.
 - Keep timezone conversion in one helper in `shared/lib/time`.
+- A whole-day booking is local 00:00 → next local 00:00, converted to UTC
+  (23 or 25 hours on DST change days — that's fine).
 
 ### Authorization
 
 - Every server action checks the session; admin actions check `role === ADMIN`.
 - Admin routes are protected in middleware and again in the action (defense in depth).
-- Session exposes `user.id` and `user.role` (NextAuth callbacks).
+- Session exposes `user.id` and `user.role` (NextAuth callbacks). Role is
+  read from the DB so promotions take effect without code changes.
+- Sign-in callback: find user by email → claim pre-created account or
+  create one; apply `ADMIN_EMAILS`.
+- Members may only edit/cancel bookings where `userId = session.user.id`.
 
 ### Data visibility
 
-- Availability query for visitors returns only table + time ranges.
-- Booker names are included only for signed-in members.
+- Day query for visitors returns only table + time ranges.
+- Signed-in members also get usernames; status and admin comment only on
+  their own bookings.
+- Walk-in contact, profiles (except username) and admin notes are only
+  returned to admins (and profiles to their owner). Shape this in the
+  query layer, not the UI.
 
 ## Environment variables
 

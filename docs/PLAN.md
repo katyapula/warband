@@ -26,24 +26,26 @@ terms: [`GLOSSARY.md`](../GLOSSARY.md).
 
 Each slice is vertical: schema, logic and UI together.
 
-Jira: epic [SCRUM-6](https://katyapula.atlassian.net/browse/SCRUM-6);
-slices 0–10 are SCRUM-7 … SCRUM-17 in order. Doc review: SCRUM-5.
+Jira: epic [SCRUM-6](https://katyapula.atlassian.net/browse/SCRUM-6). Doc
+review: SCRUM-5. The slices below were re-cut on 2026-11-16 (day view,
+member profiles); Slices 0–1 were done before the re-cut; slices 0–10
+are SCRUM-7 … SCRUM-17 in order, slice 11 is SCRUM-18.
 
 | #  | Slice                    | Includes                                                                                     | Depends on |
 | -- | ------------------------ | -------------------------------------------------------------------------------------------- | ---------- |
 | 0  | Foundation               | Scaffold Next 15 + TS + antd; remove old code; Prisma schema + first migration; NextAuth Google; role from `ADMIN_EMAILS`; session has `id`/`role`; admin route guard; config module; header with sign-in/out; Vercel + Neon wired up; test runner | — |
 | 1  | Admin tables             | Create, edit, deactivate tables                                                              | 0          |
-| 2  | Admin settings           | Club info, weekly opening hours (close ≤ midnight), closed dates; seed `ClubSettings`        | 0          |
-| 3  | Booking rules            | Pure functions for all booking checks, derived statuses (Expired/Completed), time-zone helper; written test-first | 0 |
-| 4  | Availability grid        | Home: club info + tables × time grid for a date; visitors see booked/free, members see names | 1, 2, 3    |
-| 5  | Create booking           | Book form: whole day or time range, note; transactional overlap check; starts Pending        | 4          |
-| 6  | My bookings & cancel     | Upcoming/past list with derived statuses, "changed by admin" note slot; cancel own booking   | 5          |
-| 7  | Admin approval queue     | Pending list; approve/reject with reason; admin cancel with reason                           | 5          |
-| 8  | Affected bookings        | On settings page: list blocking bookings outside new hours / on closed dates, with links to edit or cancel | 2, 7 |
-| 9  | Admin edit               | Edit pending/approved not-yet-started bookings; re-validate (no window limit); keep status; set edit reason; shown in My bookings | 6, 7 |
-| 10 | Walk-in bookings         | Admin creates booking with name + optional phone (admin-only); approved immediately; edit/cancel by admins only | 9 |
+| 2  | Admin settings & about   | Migration: drop weekly hours/closed dates, add default hours to `ClubSettings` and `ClubDay`; club info + default working hours form; `/about` page | 0          |
+| 3  | Booking rules            | Pure functions for all booking checks, derived statuses and flags (Expired, Completed, On inactive day, Outside working hours), whole-day range, time-zone helper; written test-first | 0 |
+| 4  | Profiles & members       | Migration: profile fields on `User`; sign-in matches by email and claims pre-created accounts, role read from DB (`ADMIN_EMAILS` forced to admin); `/profile` (username unique, profile fields); `/admin/members`: list/search, add by email, edit profiles + admin notes, change roles with `ADMIN_EMAILS`/self guards | 0 |
+| 5  | Day view & club days     | Home day strip (week, ‹ ›, window, default landing day, `?date=`); per-role table list (visitor: Booked; member: usernames); admin Activate / Edit hours / Deactivate; "chilling" message | 1, 2, 3    |
+| 6  | Member booking           | Migration: `Booking.date`, `adminComment`, `walkInContact`, `createdById`; Add modal (whole day / time range, note) on tables with a free gap; transactional overlap check; starts Pending; own-booking tags; Cancel with confirmation | 5          |
+| 7  | My bookings & member edit| Upcoming/past list with derived statuses, flags and admin comment; member Edit (prefilled modal → back to Pending) from day view and My bookings | 6          |
+| 8  | Admin review             | Booking rows in admin day view: Approve/Reject, Cancel, admin comment; table Clear with confirmation; pending badges in strip; Needs attention (N) nav | 6          |
+| 9  | Admin booking & edit     | Admin Add/Edit modal: booker autocomplete (members + past walk-ins), walk-in name/contact, "Save this as a member" (email); approved immediately; admin edit keeps status | 4, 8       |
+| 10 | Conflicts                | ⚠ flags on day view and My bookings; inactive days with bookings shown to admins and counted in Needs attention; ⚠ in strip | 7, 8 |
+| 11 | Archive                  | `/admin/archive`: compact paginated past bookings, filters (date range, table, status)        | 8          |
 
 ## Not in v1
 
-See "Out of scope" in [`PRODUCT.md`](./PRODUCT.md). Notably deferred to v2:
-admin booking on behalf of an existing member, notifications (Telegram).
+See "Out of scope" and "Next version ideas" in [`PRODUCT.md`](./PRODUCT.md).
