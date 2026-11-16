@@ -1,4 +1,4 @@
-// Placeholder until slice 4 (availability grid, SCRUM-11).
+// Placeholder until slice 5 (day view).
 export default function HomePage() {
   return (
     <main>

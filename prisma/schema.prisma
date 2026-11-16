@@ -12,30 +12,23 @@ datasource db {
 }
 
 model ClubSettings {
-  id           Int            @id @default(1) // singleton row
-  name         String
-  location     String
-  description  String
-  updatedAt    DateTime       @updatedAt
-  openingHours OpeningHours[]
+  id               Int      @id @default(1) // singleton row
+  name             String
+  location         String
+  description      String
+  defaultOpenTime  String   @default("12:00") // "HH:mm", club timezone; prefills activated days
+  defaultCloseTime String   @default("20:00") // "HH:mm" or "24:00"
+  updatedAt        DateTime @updatedAt
 }
 
-model OpeningHours {
-  id         String       @id @default(uuid())
-  settingsId Int
-  settings   ClubSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
-  weekday    Int // 0 = Monday … 6 = Sunday
-  isClosed   Boolean      @default(false)
-  openTime   String? // "HH:mm", club timezone
-  closeTime  String? // "HH:mm" or "24:00", club timezone; never past midnight
-
-  @@unique([settingsId, weekday])
-}
-
-model ClosedDate {
-  id     String   @id @default(uuid())
-  date   DateTime @unique @db.Date
-  reason String?
+// A date the club may be booked on. No row, or isActive = false, means inactive.
+// Deactivating keeps the hours so re-activating restores them. See docs/adr/0002.
+model ClubDay {
+  date      DateTime @id @db.Date // club-local calendar date
+  isActive  Boolean  @default(true)
+  openTime  String // "HH:mm", club timezone
+  closeTime String // "HH:mm" or "24:00"; never past midnight
+  updatedAt DateTime @updatedAt
 }
 
 model Table {
