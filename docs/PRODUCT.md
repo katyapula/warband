@@ -14,7 +14,7 @@ details.
 | ------- | ------------------------- | ---------------------------------------------------------------------- |
 | Visitor | Not signed in             | See club info and booked times on active days (no names, no actions)   |
 | Member  | Signed in with Google     | Everything a visitor can + see bookers' usernames; create and cancel own bookings; edit own profile |
-| Admin   | Member with the admin role | Everything a member can + activate/deactivate days, approve/reject/edit/cancel any booking, book for anyone, manage members, tables and club settings, browse past days |
+| Admin   | Member with the admin role | Everything a member can + activate/deactivate days, approve/edit/cancel any booking, book for anyone, manage members, tables and club settings, browse past days |
 
 ## Scope (v1)
 
@@ -77,9 +77,10 @@ details.
 - Day header: **Activate** with default hours (editable) on an inactive
   day; **Edit hours** and **Deactivate** on an active day.
 - Each table: **Add**.
-- Each booking row: **Approve** / **Reject** (pending only), **Edit**,
-  **Cancel** (with confirmation), and the admin comment. Flagged bookings
-  show ⚠.
+- Each booking row: **Approve** (pending only), **Edit** (its modal holds
+  the admin comment), **Cancel** (with an optional admin comment; also how
+  an admin declines a pending booking), and **Comment** where Edit isn't
+  offered (past, cancelled, expired, completed). Flagged bookings show ⚠.
 - An inactive day that still has bookings shows its tables and bookings to
   admins so they can deal with them.
 - Past days are read-only, apart from the admin comment.
@@ -117,26 +118,26 @@ details.
 ```
 PENDING ──approve──▶ APPROVED
    │                    │
-   ├──reject──▶ REJECTED │
-   │                    │
    └──cancel──▶ CANCELLED ◀──cancel──┘
 ```
 
 - Members can cancel their own `PENDING`/`APPROVED` bookings until they
   start. Members can't edit bookings.
-- Admins can approve or reject `PENDING`, and edit or cancel any
-  `PENDING`/`APPROVED` booking until it starts. Admin edits keep the status.
+- Admins can approve `PENDING`, and edit or cancel any
+  `PENDING`/`APPROVED` booking until it starts. There is no separate
+  reject: an admin declines a pending booking by cancelling it, with an
+  admin comment saying why. Admin edits keep the status.
   The member of a booking can't be changed by an edit.
-- `REJECTED` and `CANCELLED` bookings free the table. Bookings are never
+- `CANCELLED` bookings free the table. Bookings are never
   deleted.
 - Two statuses are derived from time, not set by anyone
   ([ADR 0001](./adr/0001-derived-completed-and-expired-statuses.md)):
   - **Expired**: still pending when its start time arrives. Stops blocking.
   - **Completed**: approved and its end time has passed.
 - **Admin comment**: one free-text comment per booking, which admins can
-  set at any time (when rejecting, cancelling, editing, explaining a
+  set at any time (when cancelling, editing, explaining a
   conflict…). Visible to the booker and admins only. No change history.
-- Completed, expired, rejected and cancelled bookings are read-only.
+- Completed, expired and cancelled bookings are read-only.
 
 ### Needs attention
 

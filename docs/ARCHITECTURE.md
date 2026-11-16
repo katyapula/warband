@@ -39,7 +39,7 @@ src/
     manage-club-days/  # activate / deactivate / edit hours
     booking-form/      # create (member + admin) and admin edit modal
     cancel-booking/
-    review-booking/    # approve / reject / admin comment
+    review-booking/    # approve / admin comment
     booker-search/     # member autocomplete
     edit-profile/
     manage-members/    # list, edit profiles, roles

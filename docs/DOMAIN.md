@@ -84,7 +84,6 @@ enum Role {
 enum BookingStatus {
   PENDING
   APPROVED
-  REJECTED
   CANCELLED
 }
 ```
@@ -102,6 +101,7 @@ be edited. Each slice adds a new migration for its part:
 | 2 | Drop `OpeningHours` and `ClosedDate`; add `defaultOpenTime`/`defaultCloseTime` to `ClubSettings`; add `ClubDay` |
 | 4 | `User.name` → `username` (unique; backfill and de-duplicate existing rows); add `fullName`, `phone`, `telegram`, `adminNotes`, `createdAt`; rename `Role.USER` → `MEMBER` and change the default |
 | 6 | `Booking.walkInPhone` → `walkInContact`; drop `statusReason`, `editedByAdminAt`, `editReason`, `isWholeDay`; add `adminComment`; drop the `status` default; add `@@index([startsAt])` |
+| 8 | Drop `REJECTED` from `BookingStatus` (existing rows → `CANCELLED`) |
 
 Production has never run any v1 migration, so the whole list may be
 squashed into one init migration just before `v1` merges into `main`
@@ -180,7 +180,7 @@ exclusion constraint: it couldn't tell an expired pending booking (stored as
 | Book for a member or walk-in | No                                       | Yes → `APPROVED`                          |
 | Edit booking                 | No                                       | Any pending/approved, before start; status kept |
 | Cancel booking               | Own, pending/approved, before start      | Any pending/approved, before start        |
-| Approve / reject             | No                                       | Pending, not expired                      |
+| Approve                      | No                                       | Pending, not expired                      |
 | Set admin comment            | No                                       | Any booking, any time                     |
 | Activate / deactivate / change hours of a day | No                      | Today → end of window                     |
 
@@ -199,12 +199,13 @@ exclusion constraint: it couldn't tell an expired pending booking (stored as
 | From       | To         | Who                         | Condition                 |
 | ---------- | ---------- | --------------------------- | ------------------------- |
 | PENDING    | APPROVED   | Admin                       | not expired               |
-| PENDING    | REJECTED   | Admin                       | not expired               |
 | PENDING    | CANCELLED  | Owner or Admin              | before `startsAt`         |
 | APPROVED   | CANCELLED  | Owner or Admin              | before `startsAt`         |
 
-`REJECTED`, `CANCELLED`, Expired and Completed are terminal and read-only
-(admins may still set the admin comment). Walk-in bookings have no owner;
+`CANCELLED`, Expired and Completed are terminal and read-only (admins may
+still set the admin comment). There is no rejected status: an admin
+declines a pending booking by cancelling it, and the admin comment says
+why (merged 2026-11-16, migration `20261116210000_merge_rejected_into_cancelled`). Walk-in bookings have no owner;
 only admins can cancel them. Bookings are never deleted.
 
 ### Club day changes

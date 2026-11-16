@@ -75,13 +75,9 @@ A booking awaiting an admin's decision — every new member booking.
 A booking an admin has accepted.
 _Avoid_: Confirmed, accepted
 
-**Rejected**:
-A pending booking an admin declined.
-_Avoid_: Denied, declined
-
 **Cancelled**:
-A booking withdrawn by its member or an admin before it took place. Bookings are never deleted.
-_Avoid_: Deleted, removed
+A booking withdrawn by its member or an admin before it took place. An admin declining a pending booking cancels it; the admin comment says why. Bookings are never deleted.
+_Avoid_: Deleted, removed, rejected, declined
 
 **Expired**:
 A pending booking whose start time passed without an admin decision.
@@ -95,7 +91,7 @@ _Avoid_: Finished, done, past booking
 An approved booking, or a pending one that hasn't expired; it prevents overlapping bookings on the same table.
 
 **Admin comment**:
-A note an admin attaches to a booking (reason for rejecting, cancelling, editing or a conflict), visible to the booker and admins.
+A note an admin attaches to a booking (reason for cancelling, editing or a conflict), visible to the booker and admins.
 _Avoid_: Reason, status note
 
 **Needs attention**:

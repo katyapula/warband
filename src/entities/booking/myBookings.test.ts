@@ -41,7 +41,7 @@ describe("shapeMyBookings", () => {
 
   it("gives club-local date and time, shown status, note and admin comment", () => {
     const rows = [
-      row({ id: "x", status: "REJECTED", note: "40k", adminComment: "Tournament that day" }),
+      row({ id: "x", status: "CANCELLED", note: "40k", adminComment: "Tournament that day" }),
       row({ id: "old", status: "APPROVED", startsAt: at("2026-11-19", 12), endsAt: at("2026-11-19", 14) }),
     ];
     const { upcoming, past } = shapeMyBookings(rows, active, me, now, KYIV);
@@ -49,7 +49,7 @@ describe("shapeMyBookings", () => {
       date: "2026-11-21",
       time: "14:00–18:00",
       tableName: "Table 1",
-      status: "REJECTED",
+      status: "CANCELLED",
       note: "40k",
       adminComment: "Tournament that day",
       canCancel: false,
