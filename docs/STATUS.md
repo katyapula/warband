@@ -8,13 +8,18 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** none in progress; slice 3 merged into `v1` (#7).
-- **Branch:** next slice branches from `v1`.
-- **State:** slices 0–3 done. Booking rules live in `src/entities/booking/`
-  and club-time helpers in `src/shared/lib/time.ts`.
-- **Next step:** check `/admin/settings` as an admin on the `v1` preview
-  (left from slice 2), then start slice 4 (profiles & members) or slice 5
-  (day view & club days); both are unblocked.
+- **Current slice:** 4 — Profiles & members (in progress)
+- **Branch:** `slice-4-profiles-members` (from `v1`)
+- **State:** migration `20261116100000_member_profiles` applied on Neon
+  `dev`; `/profile`, `/admin/members` (search, edit + admin notes, roles
+  with self/`ADMIN_EMAILS` guards); member and role read from the DB per
+  request. Server field errors now clear when the field changes (all
+  forms). Tried end to end as test users; Google sign-in sync tested
+  against the dev DB. `npm run check` passes (104 tests). PR
+  `Slice 4: Profiles & members` open into `v1`.
+- **Next step:** merge the slice 4 PR, then start slice 5 (day view &
+  club days). `/admin/settings` on the `v1` preview is still unchecked
+  (slice 2).
 
 ## Slices
 
@@ -26,7 +31,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 1  | Admin tables                | Done        |
 | 2  | Admin settings & about      | Done        |
 | 3  | Booking rules               | Done        |
-| 4  | Profiles & members          | To do       |
+| 4  | Profiles & members          | In progress |
 | 5  | Day view & club days        | To do       |
 | 6  | Member booking              | To do       |
 | 7  | My bookings                 | To do       |
@@ -47,8 +52,9 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.
 - **Old Google API key:** the previous version committed one in
   `src/app/constants.ts`. Confirm it was rotated in Google Cloud.
-- **Auth from slice 0** still assigns roles from `ADMIN_EMAILS` only;
-  match-by-email, pre-created accounts and DB roles land in slice 4.
+- **Restart `npm run dev` after every migration.** `shared/lib/prisma.ts`
+  keeps one client on `globalThis`, so a running server keeps the old
+  schema and signed-in pages fail until restarted.
 
 ## Requests
 

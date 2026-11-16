@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { requireAdmin } from "@/shared/lib/auth/session";
+import { requireAdminPage } from "@/shared/lib/auth/session";
 
-// Admin home; members (slice 4) and day-view admin actions arrive with their slices.
+// Admin home; day-view admin actions arrive with their slices.
 export default async function AdminPage() {
-  const admin = await requireAdmin();
+  const admin = await requireAdminPage("/admin");
 
   return (
     <main>
       <h1>Admin</h1>
-      <p>Signed in as {admin.name} (admin).</p>
+      <p>Signed in as {admin.username} (admin).</p>
       <ul>
+        <li>
+          <Link href="/admin/members">Members</Link>: profiles, admin notes and roles
+        </li>
         <li>
           <Link href="/admin/tables">Tables</Link>: add, edit and deactivate tables
         </li>

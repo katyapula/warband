@@ -83,11 +83,14 @@ exclusion constraint (see `DOMAIN.md` → "Preventing double booking").
 
 ### Authorization
 
-- Every server action checks the session; admin actions check `role === ADMIN`.
-- Admin routes are protected in middleware and again in the action (defense in depth).
-- Session exposes `user.id` and `user.role` (NextAuth callbacks). Role is
-  read from the DB so promotions take effect without code changes.
-- Sign-in callback: find user by email or create one; apply `ADMIN_EMAILS`.
+- The session cookie carries only the member's id. `getMember()`
+  (`shared/lib/auth/session.ts`) reads username and role from the DB once per
+  request, so profile edits and promotions apply without signing in again.
+- Middleware only checks that `/admin/*` and `/profile` have a signed-in
+  member. Admin pages call `requireAdminPage()` (redirects) and server actions
+  call `requireAdmin()` (returns an error), both checking the DB role.
+- Sign-in callback: find user by email or create one (username from the
+  Google name, made unique ignoring case); apply `ADMIN_EMAILS`.
 - Members may only cancel bookings where `userId = session.user.id`.
 
 ### Data visibility

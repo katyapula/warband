@@ -1,8 +1,7 @@
 import type { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { getConfig } from "@/shared/config";
-import { prisma } from "@/shared/lib/prisma";
-import { roleForEmail } from "./roles";
+import { syncMemberOnSignIn } from "@/entities/user/repository";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -20,25 +19,17 @@ export const authOptions: AuthOptions = {
       return Boolean(user.email);
     },
     async jwt({ token, user }) {
-      // `user` is only present on sign-in: sync the member and apply their role.
+      // `user` is only present on sign-in: find or create the member and apply ADMIN_EMAILS.
       if (user?.email) {
-        const email = user.email.trim().toLowerCase();
-        const role = roleForEmail(email, getConfig().adminEmails);
-        const member = await prisma.user.upsert({
-          where: { email },
-          create: { email, name: user.name ?? email, image: user.image, role },
-          update: { name: user.name ?? undefined, image: user.image, role },
-        });
-        token.id = member.id;
-        token.role = member.role;
+        token.id = await syncMemberOnSignIn(
+          { email: user.email, name: user.name, image: user.image },
+          getConfig().adminEmails,
+        );
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-      }
+      if (session.user) session.user.id = token.id;
       return session;
     },
   },
