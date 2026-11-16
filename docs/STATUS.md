@@ -8,19 +8,21 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 10 (conflicts) in review, PR from `slice-10-conflicts`.
-  It is the last v1 slice.
-- **Branch:** `slice-10-conflicts` (from `v1`).
-- **State:** slices 0–9 merged; Reject was merged into Cancel (one
-  Cancelled status). Slice 10 shows inactive days that still have
-  bookings to admins (with ⚠ in the strip) and members' own bookings on
-  them, tags those bookings ⚠ On inactive day, and confirms Edit hours
-  with the bookings the new hours leave outside.
-- **Next step:** check the PR's Vercel preview, merge, then release v1
-  (`PLAN.md` → Setup): optionally squash the migrations into one init
-  migration and reset Neon `dev`, then merge `v1` into `main`. Still
-  unchecked on the `v1` preview: `/admin/settings` (slice 2) and the slice
-  5 admin day controls.
+- **Released:** v1 is on `main` and live at https://warband.vercel.app
+  (2026-11-16, #13). All slices 0–10 are done.
+- **Production database:** the old app's schema was backed up
+  (`~/Documents/warband-prod-backup-2026-11-16.json`: 2 clubs, 15 tables,
+  0 users, 0 bookings), dropped, and replaced by the v1 migrations. Warband's
+  name, location and 9 tables were carried over; the Legacy club was not.
+  Production `ADMIN_EMAILS` is set.
+- **Branches:** `main` = production. New work branches from `main`;
+  `v1` is finished.
+- **Next step:** admins sign in on production, check club settings and
+  tables, and activate the first days. Then triage Requests and the "Next
+  version ideas" in `PRODUCT.md`.
+- **Releasing a schema change:** Vercel doesn't run migrations. Run
+  `prisma migrate deploy` against the production database before (or
+  right as) the code that needs it reaches `main`.
 
 ## Slices
 
@@ -38,7 +40,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 7  | My bookings                 | Done        |
 | 8  | Admin review                | Done        |
 | 9  | Admin booking & edit        | Done        |
-| 10 | Conflicts                   | In review   |
+| 10 | Conflicts                   | Done        |
 
 ## Loose ends
 
@@ -61,6 +63,8 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
   `createdById` moved to v2 or dropped. Slice 11 (Archive) is gone.
 - **Old Google API key:** the previous version committed one in
   `src/app/constants.ts`. Confirm it was rotated in Google Cloud.
+- **Old Neon `dev` data** still has v1 test bookings; reset it whenever
+  convenient.
 - **Restart `npm run dev` after every migration.** `shared/lib/prisma.ts`
   keeps one client on `globalThis`, so a running server keeps the old
   schema and signed-in pages fail until restarted.
