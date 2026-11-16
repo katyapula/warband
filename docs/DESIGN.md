@@ -64,6 +64,10 @@ antd, theme it). Anti-goal: "fantasy" kitsch that hurts legibility
   Known trade-off: in dark mode, antd components (cards, buttons) render
   light for a moment before hydration; page background, header and strip
   are dark from the first paint. No manual light/dark switch yet.
+- **Admin home + bar button.** `/admin` is a grid of brand cards
+  (`.wb-admin-*`) instead of a bare list. Sign out on the header bar is
+  a plain `.wb-bar-button` in `--wb-on-bar` colors: antd's `ghost`
+  button took `colorBgContainer`, near-invisible on the dark-mode bar.
 
 ## Brand tokens
 

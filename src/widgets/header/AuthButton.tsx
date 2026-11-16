@@ -32,9 +32,15 @@ export function AuthButton({ member, tone = "light" }: { member: AuthMember | nu
           <span>{member.username}</span>
         </Flex>
       </Link>
-      <Button ghost={dark} onClick={() => signOut({ callbackUrl: "/" })}>
-        Sign out
-      </Button>
+      {dark ? (
+        // antd's ghost button takes its color from colorBgContainer, which is
+        // near-black in dark mode; the bar has its own tokens (globals.css).
+        <button type="button" className="wb-bar-button" onClick={() => signOut({ callbackUrl: "/" })}>
+          Sign out
+        </button>
+      ) : (
+        <Button onClick={() => signOut({ callbackUrl: "/" })}>Sign out</Button>
+      )}
     </Flex>
   );
 }
