@@ -1,8 +1,5 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { formatDate } from "@/shared/lib/time";
-
-const ACCENT = "#8b1e1e"; // AppShell colorPrimary
 
 const dayHref = (date: string) => `/?date=${date}`;
 
@@ -11,27 +8,6 @@ const parts = (date: string) => ({
   day: formatDate(date, { day: "numeric" }),
   full: formatDate(date, { weekday: "long", day: "numeric", month: "long" }),
 });
-
-const arrow: CSSProperties = {
-  flex: "0 0 32px",
-  display: "grid",
-  placeItems: "center",
-  fontSize: 22,
-  lineHeight: 1,
-  textDecoration: "none",
-  color: "inherit",
-  borderRadius: 6,
-};
-
-const todayButton: CSSProperties = {
-  justifySelf: "start",
-  padding: "2px 10px",
-  fontSize: 13,
-  border: `1px solid ${ACCENT}`,
-  borderRadius: 6,
-  color: ACCENT,
-  textDecoration: "none",
-};
 
 /**
  * One week (Mon–Sun) of dates with ‹ › arrows. Dates outside the viewable
@@ -67,132 +43,80 @@ export function DayStrip({
   const month = formatDate(selected, { month: "long", year: "numeric" });
 
   return (
-    <nav aria-label="Days" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
+    <nav aria-label="Days" className="wb-strip">
+      <div className="wb-strip-top">
         {selected === today ? (
-          <span aria-disabled style={{ ...todayButton, opacity: 0.35 }}>
+          <span aria-disabled className="wb-strip-today" data-disabled>
             Today
           </span>
         ) : (
-          <Link href={dayHref(today)} style={todayButton}>
+          <Link href={dayHref(today)} className="wb-strip-today">
             Today
           </Link>
         )}
-        <span style={{ fontSize: 13, opacity: 0.65 }}>{month}</span>
+        <span className="wb-strip-month">{month}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "stretch", gap: 4 }}>
+      <div className="wb-strip-row">
         {prev ? (
-          <Link href={dayHref(prev)} aria-label="Previous week" style={arrow}>
+          <Link href={dayHref(prev)} aria-label="Previous week" className="wb-strip-arrow">
             ‹
           </Link>
         ) : (
-          <span aria-hidden style={{ ...arrow, opacity: 0.2 }}>
+          <span aria-hidden className="wb-strip-arrow" data-disabled>
             ‹
           </span>
         )}
-        <ol
-          style={{
-            display: "flex",
-            flex: 1,
-            gap: 4,
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-            minWidth: 0,
-          }}
-        >
+        <ol className="wb-strip-days">
           {week.map((date) => {
             const p = parts(date);
             const isSelected = date === selected;
+            const isToday = date === today;
             const isActive = activeDates.has(date);
             const hasOwn = ownDates.has(date);
-            const markColor = isSelected ? "#fff" : ACCENT;
             const pending = pendingCounts.get(date) ?? 0;
             const warn = warnDates.has(date);
             const viewable = isViewable(date);
-            const cell: CSSProperties = {
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-              padding: "6px 0",
-              borderRadius: 8,
-              textDecoration: "none",
-              color: isSelected ? "#fff" : "inherit",
-              background: isSelected ? ACCENT : "transparent",
-              border: `1px solid ${date === today && !isSelected ? ACCENT : "transparent"}`,
-              opacity: viewable ? 1 : 0.35,
-            };
             const content = (
               <>
                 {pending > 0 && (
-                  <span
-                    aria-hidden
-                    style={{
-                      position: "absolute",
-                      top: 2,
-                      right: 2,
-                      minWidth: 16,
-                      height: 16,
-                      padding: "0 4px",
-                      boxSizing: "border-box",
-                      borderRadius: 8,
-                      background: "#d48806",
-                      color: "#fff",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      lineHeight: "16px",
-                      textAlign: "center",
-                    }}
-                  >
+                  <span aria-hidden className="wb-day-badge">
                     {pending}
                   </span>
                 )}
                 {warn && (
-                  <span aria-hidden style={{ position: "absolute", top: 1, left: 3, fontSize: 12, lineHeight: 1 }}>
+                  <span aria-hidden className="wb-day-warn">
                     ⚠
                   </span>
                 )}
-                <span style={{ fontSize: 12 }}>{p.weekday}</span>
-                <span style={{ fontSize: 18, fontWeight: 600 }}>{p.day}</span>
-                <span aria-hidden style={{ display: "flex", gap: 3, height: 6 }}>
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: isActive ? markColor : "transparent",
-                    }}
-                  />
-                  {hasOwn && (
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        boxSizing: "border-box",
-                        borderRadius: "50%",
-                        border: `1.5px solid ${markColor}`,
-                      }}
-                    />
-                  )}
+                <span className="wb-day-weekday">{p.weekday}</span>
+                <span className="wb-day-number">{p.day}</span>
+                <span aria-hidden className="wb-day-marks">
+                  <span className="wb-day-dot" data-on={isActive || undefined} />
+                  {hasOwn && <span className="wb-day-ring" />}
                 </span>
               </>
             );
-            const label = `${p.full}${date === today ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}${pending ? `, ${pending} pending` : ""}${warn ? ", inactive with bookings" : ""}`;
+            const label = `${p.full}${isToday ? ", today" : ""}${isActive ? ", open for booking" : ""}${hasOwn ? ", you have a booking" : ""}${pending ? `, ${pending} pending` : ""}${warn ? ", inactive with bookings" : ""}`;
+            const state = {
+              "data-selected": isSelected || undefined,
+              "data-today": isToday || undefined,
+              "data-active": isActive || undefined,
+              "data-disabled": !viewable || undefined,
+            };
             return (
-              <li key={date} style={{ flex: 1, minWidth: 0 }}>
+              <li key={date}>
                 {viewable ? (
                   <Link
                     href={dayHref(date)}
                     aria-label={label}
                     aria-current={isSelected ? "date" : undefined}
-                    style={cell}
+                    className="wb-day"
+                    {...state}
                   >
                     {content}
                   </Link>
                 ) : (
-                  <span aria-label={label} style={cell}>
+                  <span aria-label={label} className="wb-day" {...state}>
                     {content}
                   </span>
                 )}
@@ -201,11 +125,11 @@ export function DayStrip({
           })}
         </ol>
         {next ? (
-          <Link href={dayHref(next)} aria-label="Next week" style={arrow}>
+          <Link href={dayHref(next)} aria-label="Next week" className="wb-strip-arrow">
             ›
           </Link>
         ) : (
-          <span aria-hidden style={{ ...arrow, opacity: 0.2 }}>
+          <span aria-hidden className="wb-strip-arrow" data-disabled>
             ›
           </span>
         )}

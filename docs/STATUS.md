@@ -20,6 +20,10 @@ _Last updated: 2026-11-16_
 - **Next step:** admins sign in on production, check club settings and
   tables, and activate the first days. Then triage Requests and the "Next
   version ideas" in `PRODUCT.md`.
+- **Design refresh:** merged to `main` (#15): new helmet mark, app icon,
+  all 8 steps in [`DESIGN.md`](./DESIGN.md), plus a designed `/admin`
+  home and a visible Sign out on the dark bar. Next: check it on
+  production in light and dark mode.
 - **Releasing a schema change:** Vercel doesn't run migrations. Run
   `prisma migrate deploy` against the production database before (or
   right as) the code that needs it reaches `main`.

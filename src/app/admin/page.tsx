@@ -1,25 +1,39 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/shared/lib/auth/session";
 
-// Admin home; day-view admin actions arrive with their slices.
+export const metadata = { title: "Admin · Warband" };
+
+const sections = [
+  { href: "/admin/members", title: "Members", text: "Profiles, admin notes and roles" },
+  { href: "/admin/tables", title: "Tables", text: "Add, edit and deactivate tables" },
+  { href: "/admin/settings", title: "Settings", text: "Club details and default working hours" },
+];
+
+// Admin home: a card per admin area. Plain elements, styled in globals.css (.wb-admin-*).
 export default async function AdminPage() {
   const admin = await requireAdminPage("/admin");
 
   return (
-    <main>
-      <h1>Admin</h1>
-      <p>Signed in as {admin.username} (admin).</p>
-      <ul>
-        <li>
-          <Link href="/admin/members">Members</Link>: profiles, admin notes and roles
-        </li>
-        <li>
-          <Link href="/admin/tables">Tables</Link>: add, edit and deactivate tables
-        </li>
-        <li>
-          <Link href="/admin/settings">Settings</Link>: club details and default working hours
-        </li>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div>
+        <h2 style={{ margin: 0 }}>Admin</h2>
+        <p className="wb-admin-sub">Signed in as {admin.username}</p>
+      </div>
+      <ul className="wb-admin-grid">
+        {sections.map((s) => (
+          <li key={s.href}>
+            <Link href={s.href} className="wb-admin-card">
+              <span className="wb-admin-card-title">
+                {s.title}
+                <span aria-hidden className="wb-admin-card-arrow">
+                  →
+                </span>
+              </span>
+              <span className="wb-admin-card-text">{s.text}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
-    </main>
+    </div>
   );
 }

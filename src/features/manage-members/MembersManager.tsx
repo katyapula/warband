@@ -24,6 +24,7 @@ import {
 import type { MemberRow } from "@/entities/user/repository";
 import { applyFieldErrors, clearErrorsOnChange } from "@/shared/ui/fieldErrors";
 import { setMemberRoleAction, updateMemberAction } from "./actions";
+import { BrandTag } from "@/shared/ui/BrandTag";
 
 export type MemberListRow = Omit<MemberRow, "createdAt"> & {
   isYou: boolean;
@@ -130,7 +131,7 @@ export function MembersManager({ members }: { members: MemberListRow[] }) {
             title: "Role",
             dataIndex: "role",
             render: (role: MemberListRow["role"]) =>
-              role === "ADMIN" ? <Tag color="red">Admin</Tag> : <Tag>Member</Tag>,
+              role === "ADMIN" ? <BrandTag tone="accent">Admin</BrandTag> : <Tag>Member</Tag>,
           },
           {
             title: "",

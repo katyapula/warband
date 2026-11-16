@@ -25,6 +25,8 @@ import { getConfig } from "@/shared/config";
 import { getMember } from "@/shared/lib/auth/session";
 import { isAdmin as hasAdminRole } from "@/shared/lib/auth/roles";
 import { dateInZone, formatDate, timeRangeInZone } from "@/shared/lib/time";
+import { brand, tint } from "@/shared/ui/theme";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { DayStrip } from "@/widgets/day-strip/DayStrip";
 import { DayTables, type AddContext, type AdminContext, type DayTable } from "./DayTables";
 
@@ -33,8 +35,8 @@ const warning = {
   margin: 0,
   padding: "8px 12px",
   borderRadius: 6,
-  background: "#fff7e6",
-  border: "1px solid #ffd591",
+  background: tint(brand.brass, 10),
+  border: `1px solid ${brand.brass}`,
 } as const;
 
 /** "12:00–14:00" → its parts, plus the whole for display. */
@@ -160,6 +162,7 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
   const { info } = settings;
   const inRange = (d: string) => (range.first === null || d >= range.first) && d <= range.last;
   const { prev, next } = stripNav(date, range);
+  const nextOpen = upcomingActive.find((d) => d > date) ?? null;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -207,13 +210,21 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
           />
         )}
 
-        {!isActive && !isAdmin && (
-          <p style={{ margin: "24px 0", fontSize: 16 }}>
-            {upcomingActive.length === 0
-              ? "No days open for booking yet."
-              : `Sorry, ${info.name} is chilling today, see you next time.`}
-          </p>
-        )}
+        {!isActive && !isAdmin &&
+          (upcomingActive.length === 0 ? (
+            <EmptyState title="No days open for booking yet">Check back soon.</EmptyState>
+          ) : (
+            <EmptyState
+              title={`Sorry, ${info.name} is chilling today`}
+              action={
+                nextOpen
+                  ? { href: `/?date=${nextOpen}`, label: `Next open day: ${formatDate(nextOpen, { weekday: "short", day: "numeric", month: "short" })}` }
+                  : undefined
+              }
+            >
+              See you next time.
+            </EmptyState>
+          ))}
         {!isActive && tables.length > 0 && (
           <p role="note" style={warning}>
             {isAdmin
@@ -222,7 +233,14 @@ export async function DayView({ dateParam }: { dateParam: string | string[] | un
           </p>
         )}
         {(isActive || tables.length > 0) && (
-          <DayTables tables={tables} isAdmin={isAdmin} add={add} admin={admin} members={members} />
+          <DayTables
+            tables={tables}
+            isAdmin={isAdmin}
+            add={add}
+            admin={admin}
+            members={members}
+            hours={isActive && day ? { openTime: day.openTime, closeTime: day.closeTime } : null}
+          />
         )}
       </section>
     </div>

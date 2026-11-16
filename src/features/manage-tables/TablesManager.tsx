@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { TABLE_DESCRIPTION_MAX, TABLE_NAME_MAX, type TableInput } from "@/entities/table/model";
 import type { TableRow } from "@/entities/table/repository";
 import { applyFieldErrors, clearErrorsOnChange } from "@/shared/ui/fieldErrors";
+import { BrandTag } from "@/shared/ui/BrandTag";
 import {
   createTableAction,
   setTableActiveAction,
@@ -88,7 +89,7 @@ export function TablesManager({ tables }: { tables: TableRow[] }) {
             title: "Status",
             dataIndex: "isActive",
             render: (active: boolean) =>
-              active ? <Tag color="green">Active</Tag> : <Tag>Inactive</Tag>,
+              active ? <BrandTag tone="moss">Active</BrandTag> : <Tag>Inactive</Tag>,
           },
           {
             title: "",

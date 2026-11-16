@@ -1,16 +1,20 @@
 "use client";
 
-import { Card, Empty, Flex, Tabs, Tag, Typography } from "antd";
+import { Card, Flex, Tabs, Typography } from "antd";
+import type { ComponentProps } from "react";
 import Link from "next/link";
 import type { MyBooking } from "@/entities/booking/myBookings";
 import { StatusTag } from "@/entities/booking/ui/StatusTag";
 import { CancelBookingButton } from "@/features/cancel-booking/CancelBookingButton";
 import { formatDate } from "@/shared/lib/time";
+import { BrandTag } from "@/shared/ui/BrandTag";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { brand } from "@/shared/ui/theme";
 
 function BookingRow({ b }: { b: MyBooking }) {
   const day = formatDate(b.date, { weekday: "short", day: "numeric", month: "short" });
   return (
-    <li style={{ padding: "10px 0", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+    <li style={{ padding: "10px 0", borderTop: `1px solid ${brand.line}` }}>
       <Flex gap={8} align="center" wrap>
         <Link href={`/?date=${b.date}`}>
           <Typography.Text strong style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -20,9 +24,9 @@ function BookingRow({ b }: { b: MyBooking }) {
         <span>{b.tableName}</span>
         <StatusTag status={b.status} />
         {b.onInactiveDay && (
-          <Tag color="orange" title="The club deactivated this day after you booked. An admin will sort it out.">
+          <BrandTag tone="brass" title="The club deactivated this day after you booked. An admin will sort it out.">
             ⚠ On inactive day
-          </Tag>
+          </BrandTag>
         )}
         {b.canCancel && (
           <span style={{ marginLeft: "auto" }}>
@@ -44,8 +48,8 @@ function BookingRow({ b }: { b: MyBooking }) {
   );
 }
 
-function List({ bookings, empty }: { bookings: MyBooking[]; empty: React.ReactNode }) {
-  if (bookings.length === 0) return <Empty description={empty} />;
+function List({ bookings, empty }: { bookings: MyBooking[]; empty: ComponentProps<typeof EmptyState> }) {
+  if (bookings.length === 0) return <EmptyState {...empty} />;
   return (
     <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
       {bookings.map((b) => (
@@ -67,18 +71,14 @@ export function MyBookingsList({ upcoming, past }: { upcoming: MyBooking[]; past
             children: (
               <List
                 bookings={upcoming}
-                empty={
-                  <>
-                    No upcoming bookings. <Link href="/">Book a table</Link>
-                  </>
-                }
+                empty={{ title: "No upcoming bookings", action: { href: "/", label: "Book a table" } }}
               />
             ),
           },
           {
             key: "past",
             label: `Past (${past.length})`,
-            children: <List bookings={past} empty="No past bookings yet." />,
+            children: <List bookings={past} empty={{ title: "No past bookings yet" }} />,
           },
         ]}
       />
