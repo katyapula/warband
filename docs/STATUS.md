@@ -8,15 +8,14 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 5 (day view & club days), branch `slice-5-day-view-club-days`.
-- **Branch:** `slice-5-day-view-club-days` (uncommitted work, not yet pushed).
-- **State:** slices 0–4 done. Members have profiles (`/profile`), admins
-  manage members and roles (`/admin/members`); member and role are read
-  from the DB per request.
-- **Next step:** check the admin side of slice 5 in a browser (Activate /
-  Edit hours / Deactivate on the day view), commit, open the PR
-  `Slice 5: day view & club days`. `/admin/settings` on the `v1` preview is
-  still unchecked (slice 2).
+- **Current slice:** none in progress; slice 5 merged into `v1` (#9).
+- **Branch:** next slice branches from `v1`.
+- **State:** slices 0–5 done. Home is the day view (`/?date=`): Today
+  button, week strip with active-day dots, tables and bookings per role.
+  Admins activate / edit hours of / deactivate days from it.
+- **Next step:** start slice 6 (member booking). Still unchecked on the
+  `v1` preview: `/admin/settings` (slice 2) and the slice 5 admin day
+  controls (Activate / Edit hours / Deactivate).
 
 ## Slices
 
@@ -29,7 +28,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 2  | Admin settings & about      | Done        |
 | 3  | Booking rules               | Done        |
 | 4  | Profiles & members          | Done        |
-| 5  | Day view & club days        | In progress |
+| 5  | Day view & club days        | Done        |
 | 6  | Member booking              | To do       |
 | 7  | My bookings                 | To do       |
 | 8  | Admin review                | To do       |
