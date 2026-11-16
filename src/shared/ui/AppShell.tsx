@@ -2,12 +2,11 @@
 
 import { App, ConfigProvider, Layout } from "antd";
 import type { ReactNode } from "react";
-import { brand, themeFor } from "./theme";
-import { useColorMode } from "./useColorMode";
+import { appTheme, brand } from "./theme";
 
 export function AppShell({ header, children }: { header: ReactNode; children: ReactNode }) {
   return (
-    <ConfigProvider theme={themeFor(useColorMode())}>
+    <ConfigProvider theme={appTheme}>
       <App>
         <Layout style={{ minHeight: "100vh" }}>
           <Layout.Header

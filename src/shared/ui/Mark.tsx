@@ -1,8 +1,12 @@
+import { useId } from "react";
+
 /**
  * The Warband helmet, drawn in `currentColor` so it works on light and dark
  * backgrounds. Same drawing as public/brand/mark.svg.
  */
 export function Mark({ size = 40, title }: { size?: number; title?: string }) {
+  // Several marks can share a page; each needs its own mask id.
+  const maskId = `wb-mark-cut-${useId()}`;
   return (
     <svg
       viewBox="0 0 64 64"
@@ -14,7 +18,7 @@ export function Mark({ size = 40, title }: { size?: number; title?: string }) {
     >
       {title && <title>{title}</title>}
       <defs>
-        <mask id="wb-mark-cut">
+        <mask id={maskId}>
           <rect width="64" height="64" fill="#fff" />
           <rect x="27.4" y="18" width="1.6" height="25" fill="#000" />
           <rect x="35" y="18" width="1.6" height="25" fill="#000" />
@@ -28,7 +32,7 @@ export function Mark({ size = 40, title }: { size?: number; title?: string }) {
           <circle cx="48" cy="48" r="1.7" fill="#000" />
         </mask>
       </defs>
-      <g mask="url(#wb-mark-cut)">
+      <g mask={`url(#${maskId})`}>
         <path d="M18.5 33 C9 31 3.5 22 6 7 C9 17 14.5 22.5 23 24 Z" />
         <path d="M45.5 33 C55 31 60.5 22 58 7 C55 17 49.5 22.5 41 24 Z" />
         <path d="M13 43 C13 28 21 18 32 18 C43 18 51 28 51 43 Z" />
