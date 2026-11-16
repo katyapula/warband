@@ -8,16 +8,13 @@ _Last updated: 2026-11-16_
 
 ## Now
 
-- **Current slice:** 3 — Booking rules (in progress)
-- **Branch:** `slice-3-booking-rules` (from `v1`)
-- **State:** pure rules written test-first in `src/entities/booking/`
-  (`rules.ts`: checks 1–7 + edit rule; `status.ts`: derived statuses,
-  blocking, On inactive day, Needs attention, cancel/edit/review
-  permissions) and club-time helpers in `src/shared/lib/time.ts`.
-  `npm run check` passes (85 tests). PR `Slice 3: Booking rules` open
-  into `v1`.
-- **Next step:** merge the slice 3 PR, check `/admin/settings` as an
-  admin on the `v1` preview (left from slice 2), then start slice 4 or 5.
+- **Current slice:** none in progress; slice 3 merged into `v1` (#7).
+- **Branch:** next slice branches from `v1`.
+- **State:** slices 0–3 done. Booking rules live in `src/entities/booking/`
+  and club-time helpers in `src/shared/lib/time.ts`.
+- **Next step:** check `/admin/settings` as an admin on the `v1` preview
+  (left from slice 2), then start slice 4 (profiles & members) or slice 5
+  (day view & club days); both are unblocked.
 
 ## Slices
 
@@ -28,7 +25,7 @@ Full scope per slice: [`PLAN.md`](./PLAN.md).
 | 0  | Foundation                  | Done        |
 | 1  | Admin tables                | Done        |
 | 2  | Admin settings & about      | Done        |
-| 3  | Booking rules               | In progress |
+| 3  | Booking rules               | Done        |
 | 4  | Profiles & members          | To do       |
 | 5  | Day view & club days        | To do       |
 | 6  | Member booking              | To do       |
