@@ -14,7 +14,7 @@ terms: [`GLOSSARY.md`](../GLOSSARY.md).
   main branch for production.
 - **Branching:** one short-lived branch per slice (`slice-<N>-<slug>`) →
   PR titled `Slice <N>: <summary>` into `v1`. `v1` merges
-  into `main` when all slices are done.
+  into `main` when all slices are done (released 2026-11-16, #13).
 
 ## Definition of done (every slice)
 
